@@ -1,0 +1,28 @@
+[package]
+name = "orbgame"
+version = "0.1.0"
+description = "The Orbital 2D Game engine"
+authors = ["Florian Blasius <flovanpt at posteo.de>"]
+readme = "README.md"
+license = "MIT"
+keywords = [
+    "orbital",
+    "redox",
+    "game",
+    "2D",
+    "engine",
+    "tiles"
+]
+
+[lib]
+name = "orbgame"
+path = "src/lib.rs"
+
+[dependencies]
+orbclient = "0.3.11"
+orbtk = "0.2.26"
+orbimage = "0.1.15"
+serde = "1.0"
+serde_derive = "1.0"
+toml = "0.4"
+chrono = "0.4"

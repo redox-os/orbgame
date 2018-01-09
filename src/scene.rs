@@ -1,19 +1,17 @@
 use std::cell::{Cell, RefCell};
 use std::sync::Arc;
-use std::time::{Duration, SystemTime};
-use std::{cmp, slice};
-
-use chrono::*;
+use std::cmp;
 
 use orbclient::{Color, Renderer};
-use orbtk::{Event, Place, Point, Rect, Widget};
-use orbimage::{Image, ImageRoi};
+use orbtk::{Event, Place, Point, Rect, Widget, Label};
+use orbimage::Image;
 
 use Camera;
 use Level;
 use Entity;
 use Direction;
 use Map;
+use UpdatableWidget;
 
 pub struct Scene {
     rect: Cell<Rect>,
@@ -24,7 +22,6 @@ pub struct Scene {
     player: RefCell<Option<Entity>>,
     player_image: RefCell<Option<Image>>,
     debug: Cell<bool>,
-    fps_timer: Cell<Option<DateTime<Local>>>,
 }
 
 impl Scene {
@@ -38,7 +35,6 @@ impl Scene {
             player: RefCell::new(None),
             player_image: RefCell::new(None),
             debug: Cell::new(true),
-            fps_timer: Cell::new(None),
         })
     }
 
@@ -69,42 +65,6 @@ impl Scene {
 
     pub fn debug(&self) -> &Cell<bool> {
         &self.debug
-    }
-
-    fn update(&self)  {
-        const FPS: u64 = ((1.0 / 60.0) * 1000.0) as u64;
-
-        let mut run = true;
-
-        // if let Some(timer) = self.fps_timer.get() {
-        //     if (Local::now().timestamp() as u64 * 1000 + Local::now().timestamp_subsec_millis() as u64)
-        //         - timer.timestamp() as u64 * 1000 + timer.timestamp_subsec_millis() as u64
-        //         >= FPS
-        //     {
-        //         run = true;
-        //         self.fps_timer.set(Some(Local::now()))
-        //     }
-        // } else {
-        //     self.fps_timer.set(Some(Local::now()));
-        //     run = true;
-        // }
-
-        if run {
-            if let Some(ref mut player) = *self.player.borrow_mut() {
-                if let Some(ref level) = *self.level.borrow() {
-                    player.mov(
-                        0.017,
-                        self.direction.get().x as f32,
-                        self.direction.get().y as f32,
-                        level.map(),
-                    );
-
-                    if let Some(ref mut camera) = *self.camera.borrow_mut() {
-                        camera.follow(player);
-                    }
-                }
-            }
-        }
     }
 
     fn draw_layer_by_camera(
@@ -154,10 +114,10 @@ impl Scene {
         renderer: &mut Renderer,
     ) {
         if let Some(ref image) = *self.level_sheet.borrow() {
-            // let scale = 1.0;
-
-            let mut end_column = end_column;
-            let mut end_row = end_row;
+           
+            // add 1 to prevent missing tiles at the borders
+            let mut end_column = end_column + 1;
+            let mut end_row = end_row + 1;
 
             if end_column > map.column_count() {
                 end_column = map.column_count();
@@ -378,7 +338,6 @@ impl Widget for Scene {
     }
 
     fn draw(&self, renderer: &mut Renderer, _focused: bool) {
-        self.update();
         if let Some(ref camera) = *self.camera.borrow() {
             if let Some(ref level) = *self.level.borrow() {
                 self.draw_layer_by_camera(0, &camera, &level.map(), renderer);
@@ -408,38 +367,22 @@ impl Widget for Scene {
 
         match event {
             Event::LeftArrow => {
-                if direction.x == 0 {
-                    direction.x = -1;
-                } else {
-                    direction.x = 0;
-                }
+                 direction.x = -1;
 
                 *redraw = true;
             }
             Event::UpArrow => {
-                 if direction.y == 0 {
-                    direction.y = -1;
-                } else {
-                    direction.y = 0;
-                }
+                direction.y = -1;
 
                 *redraw = true;
             }
             Event::RightArrow => {
-                 if direction.x == 0 {
-                    direction.x = 1;
-                } else {
-                    direction.x = 0;
-                }
+                direction.x = 1;
 
                 *redraw = true;
             }
             Event::DownArrow => {
-                 if direction.y == 0 {
-                    direction.y = 1;
-                } else {
-                    direction.y = 0;
-                }
+                direction.y = 1;
 
                 *redraw = true;
             }
@@ -449,5 +392,26 @@ impl Widget for Scene {
         self.direction.set(direction);
 
         focused
+    }
+}
+
+impl UpdatableWidget for Scene {
+    fn update(&self) {
+        if let Some(ref mut player) = *self.player.borrow_mut() {
+            if let Some(ref level) = *self.level.borrow() {
+                player.mov(
+                    0.017,
+                    self.direction.get().x as f32,
+                    self.direction.get().y as f32,
+                    level.map(),
+                );
+
+                if let Some(ref mut camera) = *self.camera.borrow_mut() {
+                    camera.follow(player);
+                }
+            }
+        }
+
+        self.direction.set(Point::new(0, 0));
     }
 }

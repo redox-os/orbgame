@@ -89,8 +89,6 @@ impl Entity {
             return;
         }
 
-        println!("yes");
-
         if dir_y > 0.0 {
             rect.y = map.get_y(map.get_row(bottom)) as i32 - rect.height as i32;
         } else if dir_y < 0.0 {

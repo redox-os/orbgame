@@ -15,6 +15,7 @@ pub use self::game::*;
 pub use self::level::*;
 pub use self::map::*;
 pub use self::scene::*;
+pub use self::stage::*;
 
 mod camera;
 mod entity;
@@ -22,3 +23,4 @@ mod game;
 mod level;
 mod map;
 mod scene;
+mod stage;

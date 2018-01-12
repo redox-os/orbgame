@@ -1,0 +1,7 @@
+title = "OrbAdventure"
+stage = "examples/adventure/stage.toml"
+target_fps = 60
+ui_css = "examples/adventure/ui.css"
+
+width = 800
+height = 600

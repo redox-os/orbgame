@@ -1,6 +1,0 @@
-title = "OrbAdventure"
-stage = "res/adventure/stage.toml"
-target_fps = 60
-
-width = 800
-height = 600

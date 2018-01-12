@@ -1,7 +1,7 @@
 use std::cell::Cell;
 
 use orbtk::{Point, Rect};
-use Entity;
+
 
 pub struct Camera {
     rect: Cell<Rect>,
@@ -47,44 +47,44 @@ impl Camera {
         self.rect().set(rect);
     }
 
-    pub fn follow(&mut self, entity: &mut Entity) {
-        let mut screen_position = entity.screen_position().get();
-        let entity_rect = entity.rect().get();
-        let mut rect = self.rect.get();
-        let maximum = self.maximum.get();
+    // pub fn follow(&mut self, entity: &mut Entity) {
+    //     let mut screen_position = entity.screen_position().get();
+    //     let entity_rect = entity.rect().get();
+    //     let mut rect = self.rect.get();
+    //     let maximum = self.maximum.get();
 
-        screen_position.x = rect.width as i32 / 2;
-        screen_position.y = rect.height as i32 / 2;
+    //     screen_position.x = rect.width as i32 / 2;
+    //     screen_position.y = rect.height as i32 / 2;
 
-        // make the camera follow the sprite
-        rect.x = entity_rect.x - rect.width as i32 / 2;
-        rect.y = entity_rect.y - rect.height as i32 / 2;
+    //     // make the camera follow the sprite
+    //     rect.x = entity_rect.x - rect.width as i32 / 2;
+    //     rect.y = entity_rect.y - rect.height as i32 / 2;
 
-        let zero: i32 = 0;
+    //     let zero: i32 = 0;
 
-        // clamp values
-        rect.x = zero.max(rect.x.min(maximum.x));
-        rect.y = zero.max(rect.y.min(maximum.y));
+    //     // clamp values
+    //     rect.x = zero.max(rect.x.min(maximum.x));
+    //     rect.y = zero.max(rect.y.min(maximum.y));
 
-        // in map corners, the sprite cannot be placed in the center of the screen
-        // and we have to change its screen coordinates
+    //     // in map corners, the sprite cannot be placed in the center of the screen
+    //     // and we have to change its screen coordinates
 
-        // left and right sides
-        if entity_rect.x < rect.width as i32 / 2
-            || entity_rect.x > maximum.x + rect.width as i32 / 2
-        {
-            let new_x = entity_rect.x - rect.x;
-            screen_position.x = new_x;
-        }
-        // top and bottom sides
-        if entity_rect.y < rect.height as i32 / 2
-            || entity_rect.y > maximum.y + rect.height as i32 / 2
-        {
-            let new_y = entity_rect.y - rect.y;
-            screen_position.y = new_y;
-        }
+    //     // left and right sides
+    //     if entity_rect.x < rect.width as i32 / 2
+    //         || entity_rect.x > maximum.x + rect.width as i32 / 2
+    //     {
+    //         let new_x = entity_rect.x - rect.x;
+    //         screen_position.x = new_x;
+    //     }
+    //     // top and bottom sides
+    //     if entity_rect.y < rect.height as i32 / 2
+    //         || entity_rect.y > maximum.y + rect.height as i32 / 2
+    //     {
+    //         let new_y = entity_rect.y - rect.y;
+    //         screen_position.y = new_y;
+    //     }
 
-        entity.screen_position().set(screen_position);
-        self.rect.set(rect);
-    }
+    //     entity.screen_position().set(screen_position);
+    //     self.rect.set(rect);
+    // }
 }

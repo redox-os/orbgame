@@ -2,7 +2,7 @@ x = 0
 y = 0
 
 [map]
-tile_set = "res/adventure/tile_set.toml"
+tile_set = "examples/adventure/tile_set.toml"
 layer_count = 3
 row_count = 49
 column_count = 60

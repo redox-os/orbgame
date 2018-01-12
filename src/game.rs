@@ -1,45 +1,24 @@
 // use std::sync::Arc;
 // use std::cell::RefCell;
 // use std::time;
+
+use std::cell::{Cell, RefCell};
+use std::sync::Arc;
+
+use toml;
 use std::io::Read;
 use std::fs::File;
 
-use toml;
-use toml::Value;
-
-use orbtk::{Label, Rect, Text, Widget, Window};
+use orbclient::Renderer;
+use orbtk::{Event, Label, Place, Point, Rect, Text, Widget, Window};
+use orbtk::theme::Theme;
 use fps_counter::FPSCounter;
 
-use Map;
+use super::{TileMap, Stage};
 
 pub trait UpdatableWidget: Widget {
     fn update(&self);
 }
-
-pub struct Stage {
-  
-}
-
-impl Stage {
-    pub fn from_toml(path: &str) -> Self {
-
-        println!("{}", path);
-
-        let mut file = File::open(path).unwrap();
-
-        let mut contents = String::new();
-
-        file.read_to_string(&mut contents).unwrap();
-
-        let value = contents.parse::<Value>().unwrap();
-
-        println!("{:?}", value);
-
-        Stage {
-
-        }
-    }
-} 
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Config {
@@ -48,6 +27,7 @@ pub struct Config {
     target_fps: u32,
     width: u32,
     height: u32,
+    ui_css: String,
 }
 
 impl Config {
@@ -55,7 +35,6 @@ impl Config {
         let config = {
             // todo: handel result
             let mut file = File::open(path).unwrap();
-
             let mut buf = Vec::new();
             file.read_to_end(&mut buf).unwrap();
             toml::from_slice(&buf).unwrap()
@@ -67,7 +46,7 @@ impl Config {
 
 pub struct Game {
     config: Config,
-    stage: Stage,
+    stage: Arc<Stage>,
     // window: Window,
     // updateable_widgets: RefCell<Vec<Arc<UpdatableWidget>>>,
     // last_tick_time: time::Instant,
@@ -82,8 +61,8 @@ impl Game {
     }
 
     pub fn from_config(config: Config) -> Self {
-
         let stage = Stage::from_toml(&config.stage[..]);
+        stage.size(config.width, config.height);
 
         Game { config, stage }
     }
@@ -95,6 +74,8 @@ impl Game {
             Rect::new(0, 0, self.config.width, self.config.height),
             &self.config.title[..],
         );
+
+        window.add(&self.stage);
 
         'event: while window.running.get() {
             window.drain_events();

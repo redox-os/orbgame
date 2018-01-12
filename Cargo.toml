@@ -23,7 +23,7 @@ opt-level = 1
 
 [dependencies]
 orbclient = "0.3.11"
-orbtk = "0.2.26"
+orbtk = { git = "https://github.com/redox-os/orbtk.git" }
 orbimage = "0.1.15"
 serde = "1.0"
 serde_derive = "1.0"

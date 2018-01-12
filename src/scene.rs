@@ -5,6 +5,7 @@ use std::cmp;
 use orbclient::{Color, Renderer};
 use orbtk::{Event, Place, Point, Rect, Widget, Label};
 use orbimage::Image;
+use orbclient;
 
 use Camera;
 use Level;
@@ -12,6 +13,8 @@ use Entity;
 use Direction;
 use Map;
 use UpdatableWidget;
+
+use orbtk::theme::Theme;
 
 pub struct Scene {
     rect: Cell<Rect>,
@@ -337,7 +340,11 @@ impl Widget for Scene {
         &self.rect
     }
 
-    fn draw(&self, renderer: &mut Renderer, _focused: bool) {
+    fn name(&self) -> &str {
+        "scene"
+    }
+
+    fn draw(&self, renderer: &mut Renderer, _focused: bool, theme: &Theme) {
         if let Some(ref camera) = *self.camera.borrow() {
             if let Some(ref level) = *self.level.borrow() {
                 self.draw_layer_by_camera(0, &camera, &level.map(), renderer);
@@ -365,33 +372,43 @@ impl Widget for Scene {
     fn event(&self, event: Event, focused: bool, redraw: &mut bool) -> bool {
         let mut direction = self.direction.get();
 
-        match event {
-            Event::LeftArrow => {
-                 direction.x = -1;
+        // match event {
+        //     Event::KeyPressed(key_event) {
+        //         match key_event {
+        //             orbclient::K_LEFT => {
 
-                *redraw = true;
-            }
-            Event::UpArrow => {
-                direction.y = -1;
+        //             },
+        //             orbclient::K_UP => {
 
-                *redraw = true;
-            }
-            Event::RightArrow => {
-                direction.x = 1;
+        //             }
+        //         }
+        //     }
+        //     Event::LeftArrow => {
+        //          direction.x = -1;
 
-                *redraw = true;
-            }
-            Event::DownArrow => {
-                direction.y = 1;
+        //         *redraw = true;
+        //     }
+        //     Event::UpArrow => {
+        //         direction.y = -1;
 
-                *redraw = true;
-            }
-            _ => (),
-        }
+        //         *redraw = true;
+        //     }
+        //     Event::RightArrow => {
+        //         direction.x = 1;
 
-        self.direction.set(direction);
+        //         *redraw = true;
+        //     }
+        //     Event::DownArrow => {
+        //         direction.y = 1;
 
-        focused
+        //         *redraw = true;
+        //     }
+        //     _ => (),
+        // }
+
+        // self.direction.set(direction);
+
+        // focused
     }
 }
 

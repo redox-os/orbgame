@@ -1,6 +1,5 @@
 use std::cell::{Cell, RefCell};
 
-use toml;
 use toml::Value;
 
 use orbimage::Image;
@@ -42,7 +41,7 @@ pub struct TileMap {
 
 impl TileMap {
     pub fn from_toml_value(value: &Value) -> Self {
-        let tile_set = super::load_toml_value(value[TILE_SET_KEY].as_str().expect("property tile_set not found"));
+        let tile_set = super::load_toml_value(value[TILE_SET_KEY].as_str().expect("property tile_set not found")).unwrap();
 
         let blocked_tiles = {
             let toml = tile_set[BLOCKED_TILES_KEY].as_array().expect("property blocked_tiles not found").to_vec();

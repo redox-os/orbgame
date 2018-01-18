@@ -1,6 +1,10 @@
 x = 0
 y = 0
 
+entities = [
+    "examples/adventure/player.toml"
+]
+
 [map]
 tile_set = "examples/adventure/tile_set.toml"
 layer_count = 3

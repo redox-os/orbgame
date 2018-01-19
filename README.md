@@ -6,7 +6,7 @@ Orbital 2D Game Engine. Compatible with Redox and SDL2.
 
 ## Screenshot
 
-<img alt="orbgame" height="768" src="https://github.com/FloVanGH/assets/blob/master/orbgame-screenshot.png">
+![orbgame](https://github.com/FloVanGH/assets/blob/master/orbgame-screenshot.png)
 
 ## Usage
 

@@ -1,7 +1,7 @@
 # orbgame
 Orbital 2D Game Engine. Compatible with Redox and SDL2. 
 
-[![Travis Build Status](https://travis-ci.org/FloVanGH/orbgame.svg?branch=master)](https://travis-ci.org/FloVanGH/orbgame)
+[![Travis Build Status](https://travis-ci.org/redox-os/orbgame.svg?branch=master)](https://travis-ci.org/redox-os/orbgame)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 ## Screenshot
@@ -14,7 +14,7 @@ To include orbgame in your project, just add the dependency
 line to your `Cargo.toml` file:
 
 ```text
-orbgame = { git = "https://github.com/FloVanGH/orbgame.git" }
+orbgame = { git = "https://github.com/redox-os/orbgame.git" }
 ```
 
 However you also need to have the SDL2 libraries installed on your

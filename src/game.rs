@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::cell::RefCell;
 
 use toml;
 use std::io::Read;
@@ -6,7 +7,7 @@ use std::fs::File;
 
 use orbtk::{Place, Rect, Window};
 
-use super::Stage;
+use super::{ScriptEngine, Stage};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Config {
@@ -35,6 +36,7 @@ impl Config {
 pub struct Game {
     config: Config,
     stage: Arc<Stage>,
+    script_engine: ScriptEngine,
 }
 
 impl Game {
@@ -46,10 +48,18 @@ impl Game {
         let stage = Stage::from_toml(&config.stage[..]);
         stage.size(config.width, config.height);
 
-        Game { config, stage }
+        let script_engine = ScriptEngine::new();
+
+        Game {
+            config,
+            stage,
+            script_engine,
+        }
     }
 
-    pub fn update(&mut self) {}
+    pub fn update(&mut self) {
+        self.script_engine.update();
+    }
 
     pub fn exec(&mut self) {
         let mut window = Window::new(

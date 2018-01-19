@@ -7,3 +7,4 @@ use orbgame::Game;
 fn main() {
     Game::from_toml("examples/adventure/game.toml").exec();
 }
+ 

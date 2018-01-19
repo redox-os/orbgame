@@ -3,6 +3,7 @@ x = 16
 y = 16
 width = 14
 height = 21
+script = "examples/adventure/player.rhai"
 
 [sprite]
 sheet = "examples/adventure/player.png"

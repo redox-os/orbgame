@@ -2,7 +2,7 @@ use std::cell::Cell;
 
 use orbtk::{Point, Rect};
 
-
+#[derive(Clone)]
 pub struct Camera {
     rect: Cell<Rect>,
     maximum: Cell<Point>,

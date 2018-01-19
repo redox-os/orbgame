@@ -1,46 +1,36 @@
-use std::cell::Cell;
-use orbtk::Rect;
+use std::cell::{Cell, RefCell};
+use orbtk::{CloneCell, Rect};
 
 use sprite::Sprite;
+use TomlLoader;
 
 static LAYER_KEY: &str = "layer";
-static X_KEY: &str = "x";
-static Y_KEY: &str = "y";
-static WIDTH_KEY: &str = "width";
-static HEIGHT_KEY: &str = "height";
 static SPRITE_KEY: &str = "sprite";
+static SCRIPT_KEY: &str = "script";
 
+#[derive(Clone)]
 pub struct Entity {
     layer: i32,
     rect: Cell<Rect>,
-    sprite: Cell<Option<Sprite>>,
+    sprite: RefCell<Option<Sprite>>,
+    script: RefCell<String>,
 }
 
 impl Entity {
     pub fn from_toml(path: &str) -> Self {
         let value = super::load_toml_value(path).unwrap();
 
-        println!("{:?}", value);
-
         Entity {
             layer: value[LAYER_KEY]
                 .as_integer()
                 .expect("property layer not found") as i32,
-            rect: Cell::new(Rect::new(
-                value[X_KEY]
-                    .as_integer()
-                    .expect("property x not found") as i32,
-                value[Y_KEY]
-                    .as_integer()
-                    .expect("property y not found") as i32,
-                value[WIDTH_KEY]
-                    .as_integer()
-                    .expect("property width not found") as u32,
-                value[HEIGHT_KEY]
-                    .as_integer()
-                    .expect("property height not found") as u32,
-            )),
-            sprite: Cell::new(Some(Sprite::from_toml_value(&value[SPRITE_KEY]))),
+            rect: Cell::new(Rect::from_toml_value(&value)),
+            sprite: RefCell::new(Some(Sprite::from_toml_value(&value[SPRITE_KEY]))),
+            script: RefCell::new(String::from(super::read_file_as_string(
+                value[SCRIPT_KEY]
+                    .as_str()
+                    .expect("property script not found"),
+            ))),
         }
     }
 
@@ -52,7 +42,11 @@ impl Entity {
         &self.rect
     }
 
-    pub fn sprite(&self) -> &Cell<Option<Sprite>> {
+    pub fn sprite(&self) -> &RefCell<Option<Sprite>> {
         &self.sprite
+    }
+
+    pub fn script(&self) -> &RefCell<String> {
+        &self.script
     }
 }

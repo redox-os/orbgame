@@ -1,6 +1,8 @@
 use std::cell::{Cell, RefCell};
 use std::sync::Arc;
 use std::cmp;
+use std::collections::HashMap;
+use std::fmt::Display;
 
 use orbclient::Renderer;
 use orbtk::{Event, Place, Point, Rect, Widget};
@@ -10,13 +12,15 @@ use orbimage::Image;
 use Camera;
 use Entity;
 use TileMap;
+use ScriptEngine;
 
 static MAP_KEY: &str = "map";
 static ENTITIES_KEY: &str = "entities";
 
+#[derive(Clone)]
 pub struct Stage {
     rect: Cell<Rect>,
-    entities: Vec<Entity>,
+    entities: HashMap<i32, RefCell<Vec<Entity>>>,
     tile_map: RefCell<Option<TileMap>>,
     camera: RefCell<Camera>,
 }
@@ -24,20 +28,36 @@ pub struct Stage {
 impl Stage {
     pub fn from_toml(path: &str) -> Arc<Self> {
         let value = super::load_toml_value(path).unwrap();
-        let mut entities = vec![];
+        let mut entities: HashMap<i32, RefCell<Vec<Entity>>> = HashMap::new();
 
-        let entities_values = value[ENTITIES_KEY].as_array().expect("property entities not found");
+        let entities_values = value[ENTITIES_KEY]
+            .as_array()
+            .expect("property entities not found");
 
         for entity in entities_values.iter() {
-            entities.push(Entity::from_toml(entity.as_str().expect("could not read path")));
-        }
+            let entity = Entity::from_toml(entity.as_str().expect("could not read path"));
+            let layer = entity.layer();
 
+            if let Some(vec) = entities.get(&layer) {
+                let mut vec = vec.borrow_mut();
+                vec.push(entity);
+                continue;
+            }
+
+            let mut vec = vec![];
+            vec.push(entity);
+            entities.insert(layer, RefCell::new(vec));
+        }
+        
         // todo handle Result of tilemap and use None for error (not found)
         Arc::new(Stage {
             tile_map: RefCell::new(Some(TileMap::from_toml_value(&value[MAP_KEY]))),
             rect: Cell::new(Rect::new(0, 0, 0, 0)),
             entities: entities,
-            camera: RefCell::new(Camera::new(Rect::new(0, 0, 800, 600), Point::new(1000, 1000))),
+            camera: RefCell::new(Camera::new(
+                Rect::new(0, 0, 800, 600),
+                Point::new(1000, 1000),
+            )),
         })
     }
 
@@ -84,6 +104,36 @@ impl Stage {
                     offset_x,
                     offset_y,
                     renderer,
+                );
+
+                let layer = i as i32;
+
+                if let Some(entities) = self.entities.get(&layer) {
+                    for entity in &*entities.borrow() {
+                        self.draw_entity(renderer, entity);
+                    }
+                }
+            }
+        }
+    }
+
+    fn draw_entity(&self, renderer: &mut Renderer, entity: &Entity) {
+        let rect = entity.rect().get();
+ 
+        if let Some(ref sprite) = *entity.sprite().borrow() {
+            let sheet = sprite.sheet();
+            let animation_rect = sprite.current_animation_rect();
+
+            if let Some(ref sheet) = *sheet.borrow() {
+                Stage::draw_image_part(
+                    renderer,
+                    sheet,
+                    rect.x,
+                    rect.y,
+                    animation_rect.x as u32,
+                    animation_rect.y as u32,
+                    animation_rect.width,
+                    animation_rect.height,
                 );
             }
         }

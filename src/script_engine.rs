@@ -1,9 +1,9 @@
 
 use rhai::{Engine, RegisterFn, Scope};
 
-use sprite::Sprite;
-use entity::Entity;
-use stage::Stage;
+// use sprite::Sprite;
+// use entity::Entity;
+// use stage::Stage;
 
 pub struct ScriptEngine {
     inner_engine: Engine,
@@ -15,9 +15,9 @@ impl ScriptEngine {
         let mut inner_engine = Engine::new();
         let scope = Scope::new();
 
-        inner_engine.register_type::<Sprite>();
-        inner_engine.register_type::<Entity>();
-        inner_engine.register_type::<Stage>();
+        // inner_engine.register_type::<Sprite>();
+        // inner_engine.register_type::<Entity>();
+        // inner_engine.register_type::<Stage>();
 
         ScriptEngine {
             inner_engine,

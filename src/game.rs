@@ -6,13 +6,12 @@
 use std::fs::File;
 // use ron::value::Value;
 use ron;
-use ron::value::Value;
 use ron::de::from_reader;
 
 use orbtk::{Rect, Window};
 // use orbtk::{Place, Rect, Window};
 
-// use super::{ScriptEngine, Stage};
+use super::{ScriptEngine};
 
 #[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename = "Game")]
@@ -20,17 +19,14 @@ pub struct Config {
     pub title: String,
     pub width: u32,
     pub height: u32,
-    pub target_fps: u32
+    pub target_fps: u32,
+    pub theme: String,
 }
 
-impl Config {
-    pub fn from_ron(path: &str) -> ron::de::Result<Config> {
-        from_reader(File::open(&path).expect("Failed opening file")) 
-    }
-}
 pub struct Game {
     window: Window,
     target_fps: u32,
+    script_engine: ScriptEngine,
 }
 
 impl Game {
@@ -38,16 +34,7 @@ impl Game {
         Game {
             window: Window::new(Rect::new(0, 0, config.width, config.height), &config.title),
             target_fps: config.target_fps,
-        }
-    }
-
-    pub fn from_ron(path: &str) -> Result<Game, String> {
-        let config = Config::from_ron(path);
-        println!("{:?}", config);
-        if let Ok(config) = Config::from_ron(path) {
-            return Ok(Game::from_config(&config))
-        } else {
-            Err(String::from("Cloud not load game"))
+            script_engine: ScriptEngine::new(),
         }
     }
 

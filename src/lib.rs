@@ -49,17 +49,19 @@ static HEIGHT_KEY: &str = "height";
 
 // pub use self::camera::*;
 // pub use self::entity::*;
+pub use self::game_builder::*;
 pub use self::game::*;
 // pub use self::tile_map::*;
-// pub use self::script_engine::ScriptEngine;
+pub use self::script_engine::ScriptEngine;
 // pub use self::sprite::Sprite;
 // pub use self::stage::*;
 
 // mod camera;
 // mod entity;
+mod game_builder;
 mod game;
 // mod tile_map;
-// mod script_engine;
+mod script_engine;
 // mod sprite;
 // mod stage;
 

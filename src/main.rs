@@ -6,5 +6,5 @@ use orbgame::Game;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    Game::from_toml(&args[1][..]).exec();
+    Game::from_ron(&args[1][..]).expect("Could not load game").exec();
 }

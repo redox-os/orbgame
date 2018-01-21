@@ -1,12 +1,19 @@
 use std::cell::{Cell, RefCell};
 use orbtk::{CloneCell, Rect};
 
-use sprite::Sprite;
-use TomlLoader;
+use sprite::{Sprite, SpriteConfig};
 
-static LAYER_KEY: &str = "layer";
-static SPRITE_KEY: &str = "sprite";
-static SCRIPT_KEY: &str = "script";
+#[derive(Clone, Debug, Deserialize, Default)]
+#[serde(rename = "Entity")]
+pub struct EntityConfig {
+    pub x: i32,
+    pub y: i32,
+    pub width: u32,
+    pub height: u32,
+    pub layer: i32,
+    pub script: String,
+    pub sprite: SpriteConfig,
+}
 
 #[derive(Clone)]
 pub struct Entity {
@@ -17,20 +24,13 @@ pub struct Entity {
 }
 
 impl Entity {
-    pub fn from_toml(path: &str) -> Self {
-        let value = super::load_toml_value(path).unwrap();
-
+    pub fn from_config(config: &EntityConfig) -> Self {
         Entity {
-            layer: value[LAYER_KEY]
-                .as_integer()
-                .expect("property layer not found") as i32,
-            rect: Cell::new(Rect::from_toml_value(&value)),
-            sprite: RefCell::new(Some(Sprite::from_toml_value(&value[SPRITE_KEY]))),
-            script: RefCell::new(String::from(super::read_file_as_string(
-                value[SCRIPT_KEY]
-                    .as_str()
-                    .expect("property script not found"),
-            ))),
+            layer: config.layer,
+            rect: Cell::new(Rect::new(config.x, config.y, config.width, config.height)),
+            sprite: RefCell::new(Some(Sprite::from_config(&config.sprite))),
+            // todo: support file loading and inplace code
+            script: RefCell::new(config.script.clone()),
         }
     }
 

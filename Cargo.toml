@@ -27,7 +27,7 @@ orbtk = { git = "https://github.com/redox-os/orbtk.git" }
 orbimage = "0.1.15"
 serde = "1.0"
 serde_derive = "1.0"
-toml = "0.4"
 chrono = "0.4"
 fps_counter = "1.0.0"
 rhai = "0.8.1"
+ron = "0.1.5"

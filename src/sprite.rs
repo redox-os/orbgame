@@ -1,12 +1,14 @@
 use std::cell::{Cell, RefCell};
 
-use toml::Value;
-
 use orbtk::Rect;
 use orbimage::Image;
 
-static SHEET_KEY: &str = "sheet";
-static ANIMATIONS_KEY: &str = "animations";
+#[derive(Clone, Debug, Deserialize, Default)]
+#[serde(rename = "Sprite")]
+pub struct SpriteConfig {
+    pub sheet: String,
+    pub animations: Vec<Vec<i32>>,
+}
 
 #[derive(Clone)]
 pub struct Sprite {
@@ -16,36 +18,28 @@ pub struct Sprite {
 }
 
 impl Sprite {
-    pub fn from_toml_value(value: &Value) -> Self {
+    pub fn from_config(config: &SpriteConfig) -> Sprite {
         let mut sheet = None;
-        if let Ok(image) =
-            Image::from_path(value[SHEET_KEY].as_str().expect("property sheet not found"))
-        {
+
+        if let Ok(image) = Image::from_path(&config.sheet) {
             sheet = Some(image)
         }
 
         let mut animations = vec![];
 
-        for animation in value[ANIMATIONS_KEY]
-            .as_array()
-            .expect("proeprty animations not found")
-        {
-            let animation = animation.as_array().expect("property is not an array");
-
+        for animation in &config.animations {
             animations.push(Rect::new(
-                animation[0].as_integer().expect("property x not found") as i32,
-                animation[1].as_integer().expect("property y not found") as i32,
-                animation[2].as_integer().expect("property width not found") as u32,
-                animation[3]
-                    .as_integer()
-                    .expect("property height not found") as u32,
-            ))
+                animation[0],
+                animation[1],
+                animation[2] as u32,
+                animation[3] as u32,
+            ));
         }
 
         Sprite {
             sheet: RefCell::new(sheet),
-            animations: animations,
-            animation_step: Cell::new(6),
+            animations,
+            animation_step: Cell::new(0),
         }
     }
 

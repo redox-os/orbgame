@@ -2,9 +2,9 @@ extern crate orbgame;
 
 use std::env;
 
-use orbgame::Game;
+use orbgame::GameBuilder;
 
 fn main() {
-    Game::from_toml("examples/adventure/game.toml").exec();
+    let game_builder = GameBuilder::new("examples/adventure/game.ron");
+    game_builder.build().expect("Could not load game").exec();
 }
- 

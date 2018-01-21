@@ -4,10 +4,12 @@ use std::sync::Arc;
 use std::cmp;
 
 use orbimage::Image;
-use orbtk::{Point, Rect, Renderer, Widget, Place, Event};
+use orbtk::{Event, Place, Point, Rect, Renderer, Widget};
 use orbtk::theme::Theme;
 
 use Camera;
+use Entity;
+use EntityConfig;
 use tile_map::{TileMap, TileMapConfig};
 
 #[derive(Clone, Debug, Deserialize, Default)]
@@ -16,20 +18,38 @@ pub struct SceneConfig {
     pub x: i32,
     pub y: i32,
     pub map: TileMapConfig,
+    pub entities: Vec<EntityConfig>,
 }
 
 #[derive(Clone)]
 pub struct Scene {
     rect: Cell<Rect>,
-    // entities: HashMap<i32, RefCell<Vec<Entity>>>,
+    entities: HashMap<i32, RefCell<Vec<Entity>>>,
     tile_map: RefCell<Option<TileMap>>,
     camera: RefCell<Camera>,
 }
 
 impl Scene {
     pub fn from_config(config: &SceneConfig) -> Arc<Self> {
+        let mut entities: HashMap<i32, RefCell<Vec<Entity>>> = HashMap::new();
+
+        for entity in &config.entities {
+            let layer = entity.layer;
+
+            if !entities.contains_key(&layer) {
+                entities.insert(entity.layer, RefCell::new(vec![]));
+            }
+
+            entities
+                .get(&layer)
+                .unwrap()
+                .borrow_mut()
+                .push(Entity::from_config(entity));
+        }
+
         Arc::new(Scene {
             rect: Cell::new(Rect::new(config.x, config.y, 800, 600)),
+            entities: entities,
             tile_map: RefCell::new(Some(TileMap::from_config(&config.map))),
             // todo: real camera values
             camera: RefCell::new(Camera::new(
@@ -86,36 +106,36 @@ impl Scene {
 
                 let layer = i as i32;
 
-                // if let Some(entities) = self.entities.get(&layer) {
-                //     for entity in &*entities.borrow() {
-                //         self.draw_entity(renderer, entity);
-                //     }
-                // }
+                if let Some(entities) = self.entities.get(&layer) {
+                    for entity in &*entities.borrow() {
+                        self.draw_entity(renderer, entity);
+                    }
+                }
             }
         }
     }
 
-    // fn draw_entity(&self, renderer: &mut Renderer, entity: &Entity) {
-    //     let rect = entity.rect().get();
+    fn draw_entity(&self, renderer: &mut Renderer, entity: &Entity) {
+        let rect = entity.rect().get();
 
-    //     if let Some(ref sprite) = *entity.sprite().borrow() {
-    //         let sheet = sprite.sheet();
-    //         let animation_rect = sprite.current_animation_rect();
+        if let Some(ref sprite) = *entity.sprite().borrow() {
+            let sheet = sprite.sheet();
+            let animation_rect = sprite.current_animation_rect();
 
-    //         if let Some(ref sheet) = *sheet.borrow() {
-    //             Scene::draw_image_part(
-    //                 renderer,
-    //                 sheet,
-    //                 rect.x,
-    //                 rect.y,
-    //                 animation_rect.x as u32,
-    //                 animation_rect.y as u32,
-    //                 animation_rect.width,
-    //                 animation_rect.height,
-    //             );
-    //         }
-    //     }
-    // }
+            if let Some(ref sheet) = *sheet.borrow() {
+                Scene::draw_image_part(
+                    renderer,
+                    sheet,
+                    rect.x,
+                    rect.y,
+                    animation_rect.x as u32,
+                    animation_rect.y as u32,
+                    animation_rect.width,
+                    animation_rect.height,
+                );
+            }
+        }
+    }
 
     fn draw_tile_map_layer(
         &self,

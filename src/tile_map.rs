@@ -39,9 +39,7 @@ impl Layer {
             tiles.push(Cell::new(tile));
         }
 
-        Layer {
-            tiles,
-        }
+        Layer { tiles }
     }
 
     pub fn push(&mut self, tile: i32) {
@@ -68,12 +66,10 @@ impl TileMap {
             layers.push(Layer::from_config(&layer));
         }
 
-        println!("{}", config.tile_set.sheet);
-
         let mut sheet = None;
 
         if let Ok(image) = Image::from_path(&config.tile_set.sheet) {
-             sheet = Some(image)
+            sheet = Some(image)
         }
 
         TileMap {
@@ -110,7 +106,7 @@ impl TileMap {
     pub fn get_tile(&self, layer: usize, row: usize, column: usize) -> i32 {
         if let Some(l) = self.layers.get(layer) {
             if let Some(t) = l.tiles.get(row * self.column_count + column) {
-                return t.get()
+                return t.get();
             }
         }
         -1

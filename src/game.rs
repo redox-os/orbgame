@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use orbtk::{Rect, Window, WindowBuilder};
 
-use super::{ScriptEngine, SceneConfig, Scene};
+use super::{Scene, SceneConfig, ScriptEngine};
 
 #[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename = "Game")]
@@ -25,7 +25,8 @@ pub struct Game {
 impl Game {
     pub fn from_config(config: &GameConfig) -> Game {
         // todo: load theme css
-        let window_builder = WindowBuilder::new(Rect::new(0, 0, config.width, config.height), &config.title);
+        let window_builder =
+            WindowBuilder::new(Rect::new(0, 0, config.width, config.height), &config.title);
         let window = window_builder.build();
         let scene = Scene::from_config(&config.scene);
         window.add(&scene);

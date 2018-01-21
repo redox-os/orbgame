@@ -1,9 +1,8 @@
-
 use rhai::{Engine, RegisterFn, Scope};
 
-// use sprite::Sprite;
-// use entity::Entity;
-// use stage::Stage;
+use sprite::Sprite;
+use entity::Entity;
+use scene::Scene;
 
 pub struct ScriptEngine {
     inner_engine: Engine,
@@ -15,9 +14,9 @@ impl ScriptEngine {
         let mut inner_engine = Engine::new();
         let scope = Scope::new();
 
-        // inner_engine.register_type::<Sprite>();
-        // inner_engine.register_type::<Entity>();
-        // inner_engine.register_type::<Stage>();
+        inner_engine.register_type::<Sprite>();
+        inner_engine.register_type::<Entity>();
+        inner_engine.register_type::<Scene>();
 
         ScriptEngine {
             inner_engine,
@@ -26,9 +25,10 @@ impl ScriptEngine {
     }
 
     pub fn update(&mut self) {
-        let result = self.inner_engine.eval_with_scope::<i32>(&mut self.scope, "4 + 4");
+        let result = self.inner_engine
+            .eval_with_scope::<i32>(&mut self.scope, "4 + 4");
         if let Ok(result) = result {
             println!("{}", result);
         }
-     }
+    }
 }

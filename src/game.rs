@@ -1,40 +1,40 @@
-// use std::sync::Arc;
-// use std::cell::RefCell;
+use std::sync::Arc;
 
-// use toml;
-// use std::io::Read;
-use std::fs::File;
-// use ron::value::Value;
-use ron;
-use ron::de::from_reader;
+use orbtk::{Rect, Window, WindowBuilder};
 
-use orbtk::{Rect, Window};
-// use orbtk::{Place, Rect, Window};
-
-use super::{ScriptEngine};
+use super::{ScriptEngine, SceneConfig, Scene};
 
 #[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename = "Game")]
-pub struct Config {
+pub struct GameConfig {
     pub title: String,
     pub width: u32,
     pub height: u32,
     pub target_fps: u32,
     pub theme: String,
+    pub scene: SceneConfig,
 }
 
 pub struct Game {
     window: Window,
     target_fps: u32,
     script_engine: ScriptEngine,
+    scene: Arc<Scene>,
 }
 
 impl Game {
-    pub fn from_config(config: &Config) -> Game {
+    pub fn from_config(config: &GameConfig) -> Game {
+        // todo: load theme css
+        let window_builder = WindowBuilder::new(Rect::new(0, 0, config.width, config.height), &config.title);
+        let window = window_builder.build();
+        let scene = Scene::from_config(&config.scene);
+        window.add(&scene);
+
         Game {
-            window: Window::new(Rect::new(0, 0, config.width, config.height), &config.title),
+            window,
             target_fps: config.target_fps,
             script_engine: ScriptEngine::new(),
+            scene: scene,
         }
     }
 

@@ -3,7 +3,7 @@ use std::fs::File;
 use ron;
 use ron::de::from_reader;
 
-use game::{Config, Game};
+use game::{GameConfig, Game};
 
 pub struct GameBuilder {
     path: String,
@@ -18,7 +18,7 @@ impl GameBuilder {
 
     pub fn build(&self) -> Result<Game, String> {
         if let Ok(file) = File::open(&self.path) {
-            let config: ron::de::Result<Config> = from_reader(file);
+            let config: ron::de::Result<GameConfig> = from_reader(file);
             if let Ok(config) = config {
                 return Ok(Game::from_config(&config))
             } else {

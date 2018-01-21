@@ -1,59 +1,37 @@
 use std::cell::{Cell, RefCell};
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::cmp;
-use std::collections::HashMap;
-use std::fmt::Display;
 
-use orbclient::Renderer;
-use orbtk::{Event, Place, Point, Rect, Widget};
-use orbtk::theme::Theme;
 use orbimage::Image;
+use orbtk::{Point, Rect, Renderer, Widget, Place, Event};
+use orbtk::theme::Theme;
 
 use Camera;
-use Entity;
-use TileMap;
-use ScriptEngine;
+use tile_map::{TileMap, TileMapConfig};
 
-static MAP_KEY: &str = "map";
-static ENTITIES_KEY: &str = "entities";
+#[derive(Clone, Debug, Deserialize, Default)]
+#[serde(rename = "Scene")]
+pub struct SceneConfig {
+    pub x: i32,
+    pub y: i32,
+    pub map: TileMapConfig,
+}
 
 #[derive(Clone)]
-pub struct Stage {
+pub struct Scene {
     rect: Cell<Rect>,
-    entities: HashMap<i32, RefCell<Vec<Entity>>>,
+    // entities: HashMap<i32, RefCell<Vec<Entity>>>,
     tile_map: RefCell<Option<TileMap>>,
     camera: RefCell<Camera>,
 }
 
-impl Stage {
-    pub fn from_toml(path: &str) -> Arc<Self> {
-        let value = super::load_toml_value(path).unwrap();
-        let mut entities: HashMap<i32, RefCell<Vec<Entity>>> = HashMap::new();
-
-        let entities_values = value[ENTITIES_KEY]
-            .as_array()
-            .expect("property entities not found");
-
-        for entity in entities_values.iter() {
-            let entity = Entity::from_toml(entity.as_str().expect("could not read path"));
-            let layer = entity.layer();
-
-            if let Some(vec) = entities.get(&layer) {
-                let mut vec = vec.borrow_mut();
-                vec.push(entity);
-                continue;
-            }
-
-            let mut vec = vec![];
-            vec.push(entity);
-            entities.insert(layer, RefCell::new(vec));
-        }
-        
-        // todo handle Result of tilemap and use None for error (not found)
-        Arc::new(Stage {
-            tile_map: RefCell::new(Some(TileMap::from_toml_value(&value[MAP_KEY]))),
-            rect: Cell::new(Rect::new(0, 0, 0, 0)),
-            entities: entities,
+impl Scene {
+    pub fn from_config(config: &SceneConfig) -> Arc<Self> {
+        Arc::new(Scene {
+            rect: Cell::new(Rect::new(config.x, config.y, 800, 600)),
+            tile_map: RefCell::new(Some(TileMap::from_config(&config.map))),
+            // todo: real camera values
             camera: RefCell::new(Camera::new(
                 Rect::new(0, 0, 800, 600),
                 Point::new(1000, 1000),
@@ -108,36 +86,36 @@ impl Stage {
 
                 let layer = i as i32;
 
-                if let Some(entities) = self.entities.get(&layer) {
-                    for entity in &*entities.borrow() {
-                        self.draw_entity(renderer, entity);
-                    }
-                }
+                // if let Some(entities) = self.entities.get(&layer) {
+                //     for entity in &*entities.borrow() {
+                //         self.draw_entity(renderer, entity);
+                //     }
+                // }
             }
         }
     }
 
-    fn draw_entity(&self, renderer: &mut Renderer, entity: &Entity) {
-        let rect = entity.rect().get();
- 
-        if let Some(ref sprite) = *entity.sprite().borrow() {
-            let sheet = sprite.sheet();
-            let animation_rect = sprite.current_animation_rect();
+    // fn draw_entity(&self, renderer: &mut Renderer, entity: &Entity) {
+    //     let rect = entity.rect().get();
 
-            if let Some(ref sheet) = *sheet.borrow() {
-                Stage::draw_image_part(
-                    renderer,
-                    sheet,
-                    rect.x,
-                    rect.y,
-                    animation_rect.x as u32,
-                    animation_rect.y as u32,
-                    animation_rect.width,
-                    animation_rect.height,
-                );
-            }
-        }
-    }
+    //     if let Some(ref sprite) = *entity.sprite().borrow() {
+    //         let sheet = sprite.sheet();
+    //         let animation_rect = sprite.current_animation_rect();
+
+    //         if let Some(ref sheet) = *sheet.borrow() {
+    //             Scene::draw_image_part(
+    //                 renderer,
+    //                 sheet,
+    //                 rect.x,
+    //                 rect.y,
+    //                 animation_rect.x as u32,
+    //                 animation_rect.y as u32,
+    //                 animation_rect.width,
+    //                 animation_rect.height,
+    //             );
+    //         }
+    //     }
+    // }
 
     fn draw_tile_map_layer(
         &self,
@@ -176,7 +154,7 @@ impl Stage {
                     let tile_c = tile as f32 % tile_column_count as f32;
                     let tile_r = (tile as f32 / tile_column_count as f32).floor();
 
-                    Stage::draw_image_part(
+                    Scene::draw_image_part(
                         renderer,
                         image,
                         (((c - start_column) as f32) * tile_map.tile_size() as f32
@@ -224,7 +202,7 @@ impl Stage {
     }
 }
 
-impl Widget for Stage {
+impl Widget for Scene {
     fn rect(&self) -> &Cell<Rect> {
         &self.rect
     }
@@ -242,4 +220,4 @@ impl Widget for Stage {
     }
 }
 
-impl Place for Stage {}
+impl Place for Scene {}

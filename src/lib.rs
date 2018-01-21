@@ -47,41 +47,22 @@ static HEIGHT_KEY: &str = "height";
 // }
 
 
-// pub use self::camera::*;
-// pub use self::entity::*;
+pub use self::camera::*;
+pub use self::entity::*;
 pub use self::game_builder::*;
 pub use self::game::*;
-// pub use self::tile_map::*;
+pub use self::tile_map::*;
+pub use self::scene::*;
 pub use self::script_engine::ScriptEngine;
 // pub use self::sprite::Sprite;
 // pub use self::stage::*;
 
-// mod camera;
-// mod entity;
+mod camera;
+mod entity;
 mod game_builder;
 mod game;
-// mod tile_map;
+pub mod tile_map;
+pub mod scene;
 mod script_engine;
 // mod sprite;
 // mod stage;
-
-pub fn read_file_as_string(path: &str) -> String {
-    let mut file = File::open(path).expect("file not found");
-    let mut contents = String::new();
-    file.read_to_string(&mut contents).expect("cannot read file");
-
-    contents
-}
-
-pub fn load_ron_value(path: &str) -> ron::de::Result<Value> {
-    ron::value::Value::from_str(&read_file_as_string(path)[..])
-}
-
-// pub fn load_toml_value(path: &str) -> Result<Value, String> {
-//     let contents = read_file_as_string(path);
-//     if let Ok(value) = contents.parse::<toml::Value>() {
-//         return Result::Ok(value)
-//     }
-
-//     Result::Err(String::from(format!("Could not parse file; {}", path)))
-// }

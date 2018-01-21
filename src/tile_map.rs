@@ -1,17 +1,30 @@
 use std::cell::{Cell, RefCell};
 
-use toml::Value;
-
 use orbimage::Image;
 
-static LAYER_COUNT_KEY: &str = "layer_count";
-static ROW_COUNT_KEY: &str = "row_count";
-static COLUMN_COUNT_KEY: &str = "column_count";
-static TILE_SIZE_KEY: &str = "tile_size";
-static BLOCKED_TILES_KEY: &str = "blocked_tiles";
-static LAYERS_KEY: &str = "layers";
-static TILE_SET_KEY: &str = "tile_set";
-static SHEET_KEY: &str = "sheet";
+#[derive(Clone, Debug, Deserialize, Default)]
+#[serde(rename = "TileSet")]
+pub struct TileSetConfig {
+    sheet: String,
+    blocked_tiles: Vec<i32>,
+    tile_size: u32,
+}
+
+#[derive(Clone, Debug, Deserialize, Default)]
+#[serde(rename = "Layer")]
+pub struct LayerConfig {
+    tiles: Vec<i32>,
+}
+
+#[derive(Clone, Debug, Deserialize, Default)]
+#[serde(rename = "TileMap")]
+pub struct TileMapConfig {
+    pub layer_count: usize,
+    pub row_count: usize,
+    pub column_count: usize,
+    pub layers: Vec<LayerConfig>,
+    pub tile_set: TileSetConfig,
+}
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Layer {
@@ -19,8 +32,16 @@ pub struct Layer {
 }
 
 impl Layer {
-    pub fn new() -> Self {
-        Layer { tiles: Vec::new() }
+    pub fn from_config(config: &LayerConfig) -> Self {
+        let mut tiles = vec![];
+
+        for tile in config.tiles.clone() {
+            tiles.push(Cell::new(tile));
+        }
+
+        Layer {
+            tiles,
+        }
     }
 
     pub fn push(&mut self, tile: i32) {
@@ -28,7 +49,7 @@ impl Layer {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct TileMap {
     layer_count: usize,
     row_count: usize,
@@ -40,58 +61,29 @@ pub struct TileMap {
 }
 
 impl TileMap {
-    pub fn from_toml_value(value: &Value) -> Self {
-        let tile_set = super::load_toml_value(value[TILE_SET_KEY].as_str().expect("property tile_set not found")).unwrap();
+    pub fn from_config(config: &TileMapConfig) -> TileMap {
+        let mut layers = vec![];
 
-        let blocked_tiles = {
-            let toml = tile_set[BLOCKED_TILES_KEY].as_array().expect("property blocked_tiles not found").to_vec();
-            let mut blocked_tiles: Vec<i32> = vec![];
+        for layer in config.layers.clone() {
+            layers.push(Layer::from_config(&layer));
+        }
 
-            for t in &toml {
-                blocked_tiles.push(t.as_integer().expect("cannot parse blocked tiles value") as i32);
-            }
-
-            blocked_tiles
-        };
-
-        let layers = {
-            let toml = value[LAYERS_KEY].as_array().expect("property layers not found").to_vec();
-            let mut layers: Vec<Layer> = vec![];
-
-            for l in &toml {            
-                let mut layer = Layer::new();
-
-                for (_key, v) in l.as_table().expect("layers not found") {                   
-                   for t in v.as_array().expect("layer not found") {
-                       layer.push(t.as_integer().expect("cannot parse tile") as i32);
-                   }
-                }
-
-                layers.push(layer);
-            }
-
-            layers
-        };
+        println!("{}", config.tile_set.sheet);
 
         let mut sheet = None;
-        if let Ok(image) = Image::from_path(tile_set[SHEET_KEY].as_str().expect("property sheet not found")) {
-            sheet = Some(image)
+
+        if let Ok(image) = Image::from_path(&config.tile_set.sheet) {
+             sheet = Some(image)
         }
 
         TileMap {
-            layer_count: value[LAYER_COUNT_KEY].as_integer().expect("property layer_count not found") as usize,
-            row_count: value[ROW_COUNT_KEY].as_integer().expect("property row_count not found") as usize,
-            column_count: value[COLUMN_COUNT_KEY].as_integer().expect("property column_count not found") as usize,
-            tile_size: tile_set[TILE_SIZE_KEY].as_integer().expect("property tile_size not found") as u32,
-            blocked_tiles,
+            layer_count: config.layer_count,
+            row_count: config.row_count,
+            column_count: config.column_count,
+            tile_size: config.tile_set.tile_size,
+            blocked_tiles: config.tile_set.blocked_tiles.clone(),
             layers,
-            sheet: RefCell::new(sheet)
-        }
-    }
-
-    pub fn new() -> TileMap {
-        TileMap {
-            ..Default::default()
+            sheet: RefCell::new(sheet),
         }
     }
 

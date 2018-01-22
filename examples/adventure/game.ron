@@ -9,6 +9,7 @@ Game (
         y: 0,
         entities: [
             Entity (
+                id: "player",
                 layer: 1,
                 x: 16,
                 y: 16,

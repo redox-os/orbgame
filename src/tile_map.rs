@@ -5,15 +5,15 @@ use orbimage::Image;
 #[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename = "TileSet")]
 pub struct TileSetConfig {
-    sheet: String,
-    blocked_tiles: Vec<i32>,
-    tile_size: u32,
+    pub sheet: String,
+    pub blocked_tiles: Vec<i32>,
+    pub tile_size: u32,
 }
 
 #[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename = "Layer")]
 pub struct LayerConfig {
-    tiles: Vec<i32>,
+    pub tiles: Vec<i32>,
 }
 
 #[derive(Clone, Debug, Deserialize, Default)]

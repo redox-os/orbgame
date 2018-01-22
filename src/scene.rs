@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::cmp;
 
+use orbclient;
 use orbimage::Image;
 use orbtk::{Event, Place, Point, Rect, Renderer, Widget};
 use orbtk::theme::Theme;
@@ -10,6 +11,7 @@ use orbtk::theme::Theme;
 use Camera;
 use Entity;
 use EntityConfig;
+use ScriptEngine;
 use tile_map::{TileMap, TileMapConfig};
 
 #[derive(Clone, Debug, Deserialize, Default)]
@@ -24,14 +26,16 @@ pub struct SceneConfig {
 #[derive(Clone)]
 pub struct Scene {
     rect: Cell<Rect>,
-    entities: HashMap<i32, RefCell<Vec<Entity>>>,
+    entities: HashMap<i32, RefCell<Vec<RefCell<Entity>>>>,
     tile_map: RefCell<Option<TileMap>>,
     camera: RefCell<Camera>,
+    vertical_direction: Cell<f64>,
+    horizontal_direction: Cell<f64>,
 }
 
 impl Scene {
     pub fn from_config(config: &SceneConfig) -> Arc<Self> {
-        let mut entities: HashMap<i32, RefCell<Vec<Entity>>> = HashMap::new();
+        let mut entities: HashMap<i32, RefCell<Vec<RefCell<Entity>>>> = HashMap::new();
 
         for entity in &config.entities {
             let layer = entity.layer;
@@ -44,7 +48,7 @@ impl Scene {
                 .get(&layer)
                 .unwrap()
                 .borrow_mut()
-                .push(Entity::from_config(entity));
+                .push(RefCell::new(Entity::from_config(entity)));
         }
 
         Arc::new(Scene {
@@ -54,14 +58,36 @@ impl Scene {
             // todo: real camera values
             camera: RefCell::new(Camera::new(
                 Rect::new(0, 0, 800, 600),
-                Point::new(1000, 1000),
+                Point::new(
+                    *&config.map.tile_set.tile_size as i32 * *&config.map.column_count as i32,
+                    *&config.map.tile_set.tile_size as i32 * *&config.map.row_count as i32,
+                ),
             )),
+            vertical_direction: Cell::new(0.0),
+            horizontal_direction: Cell::new(0.0),
         })
     }
 
     pub fn camera(&self, camera: Camera) -> &Self {
         (*self.camera.borrow_mut()) = camera;
         self
+    }
+
+    pub fn update(&self, script_engine: &mut ScriptEngine, delta: f64) {
+        script_engine.update(
+            self.vertical_direction.get(),
+            self.horizontal_direction.get(),
+            delta,
+        );
+        for (_, entities) in &self.entities {
+            for entity in &*entities.borrow_mut() {
+                let entity_c = script_engine.execute_script(&*entity.borrow());
+                *entity.borrow_mut() = entity_c;
+
+                // todo: use connect camera and entity from game.ron
+                self.camera.borrow_mut().follow(&mut *entity.borrow_mut());
+            }
+        }
     }
 
     pub fn draw_all_layers(&self, renderer: &mut Renderer) {
@@ -108,7 +134,7 @@ impl Scene {
 
                 if let Some(entities) = self.entities.get(&layer) {
                     for entity in &*entities.borrow() {
-                        self.draw_entity(renderer, entity);
+                        self.draw_entity(renderer, &*entity.borrow());
                     }
                 }
             }
@@ -116,7 +142,8 @@ impl Scene {
     }
 
     fn draw_entity(&self, renderer: &mut Renderer, entity: &Entity) {
-        let rect = entity.rect().get();
+        //let rect = entity.rect().get();
+        let screen_position = entity.screen_position().get();
 
         if let Some(ref sprite) = *entity.sprite().borrow() {
             let sheet = sprite.sheet();
@@ -126,8 +153,8 @@ impl Scene {
                 Scene::draw_image_part(
                     renderer,
                     sheet,
-                    rect.x,
-                    rect.y,
+                    screen_position.x,
+                    screen_position.y,
                     animation_rect.x as u32,
                     animation_rect.y as u32,
                     animation_rect.width,
@@ -235,7 +262,40 @@ impl Widget for Scene {
         self.draw_all_layers(renderer);
     }
 
-    fn event(&self, _event: Event, _focused: bool, _redraw: &mut bool) -> bool {
+    fn event(&self, event: Event, _focused: bool, _redraw: &mut bool) -> bool {
+        match event {
+            Event::KeyPressed(key_event) => match key_event.scancode {
+                orbclient::K_UP => {
+                    self.vertical_direction.set(-1.0);
+                }
+                orbclient::K_DOWN => {
+                    self.vertical_direction.set(1.0);
+                }
+                orbclient::K_LEFT => {
+                    self.horizontal_direction.set(-1.0);
+                }
+                orbclient::K_RIGHT => {
+                    self.horizontal_direction.set(1.0);
+                }
+                _ => {}
+            },
+            Event::KeyReleased(key_event) => match key_event.scancode {
+                orbclient::K_UP => {
+                    self.vertical_direction.set(0.0);
+                }
+                orbclient::K_DOWN => {
+                    self.vertical_direction.set(0.0);
+                }
+                orbclient::K_LEFT => {
+                    self.horizontal_direction.set(0.0);
+                }
+                orbclient::K_RIGHT => {
+                    self.horizontal_direction.set(0.0);
+                }
+                _ => {}
+            },
+            _ => {}
+        }
         _focused
     }
 }

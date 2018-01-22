@@ -6,6 +6,7 @@ extern crate orbclient;
 extern crate orbimage;
 extern crate orbtk;
 extern crate rhai;
+extern crate regex;
 
 extern crate chrono;
 extern crate fps_counter;

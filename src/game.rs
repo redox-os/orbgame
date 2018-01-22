@@ -1,4 +1,7 @@
 use std::sync::Arc;
+use std::time;
+
+use fps_counter::FPSCounter;
 
 use orbtk::{Rect, Window, WindowBuilder};
 
@@ -17,9 +20,12 @@ pub struct GameConfig {
 
 pub struct Game {
     window: Window,
-    target_fps: u32,
+    target_fps: f64,
+    target_fps_nanos: f32,
     script_engine: ScriptEngine,
     scene: Arc<Scene>,
+    last_tick_time: time::Instant,
+    fps_counter: FPSCounter,
 }
 
 impl Game {
@@ -33,13 +39,31 @@ impl Game {
 
         Game {
             window,
-            target_fps: config.target_fps,
+            target_fps: config.target_fps as f64,
+            target_fps_nanos: (1. / config.target_fps as f32) * 1_000_000_000.,
             script_engine: ScriptEngine::new(),
             scene: scene,
+            last_tick_time: time::Instant::now(),
+            fps_counter: FPSCounter::new(),
         }
     }
 
-    fn update(&mut self) {}
+    pub fn elapsed(&self) -> f32 {
+        let time = self.last_tick_time.elapsed();
+        let total_nanos = time.as_secs() * 1_000_000_000 + time.subsec_nanos() as u64;
+        self.target_fps_nanos - (total_nanos as f32)
+    }
+
+    fn update(&mut self) {
+        if self.elapsed() > 0. {
+            return;
+        }
+
+        let delta = 1.0 / self.target_fps;
+
+        self.scene.update(&mut self.script_engine, delta);
+        self.last_tick_time = time::Instant::now();
+    }
 
     pub fn exec(&mut self) {
         'event: while self.window.running.get() {
@@ -50,87 +74,3 @@ impl Game {
         }
     }
 }
-
-// #[derive(Clone, Serialize, Deserialize, Debug)]
-// pub struct Config {
-//     title: String,
-//     stage: String,
-//     target_fps: u32,
-//     width: u32,
-//     height: u32,
-//     ui_css: String,
-// }
-
-// impl Config {
-//     pub fn from_toml(path: &str) -> Self {
-//         let config = {
-//             // todo: handel result
-//             let mut file = File::open(path).unwrap();
-//             let mut buf = Vec::new();
-//             file.read_to_end(&mut buf).unwrap();
-//             toml::from_slice(&buf).unwrap()
-//         };
-
-//         config
-//     }
-// }
-
-// pub struct Game {
-//     title: String,
-//     width: u32,
-//     height :u32,
-//     target_fps: u32,
-//     config: Config,
-//     stage: Arc<Stage>,
-//     script_engine: ScriptEngine,
-// }
-
-// impl Game {
-//     pub fn from_ron(path: &str) -> Self {
-//         let value = super::load_ron_value(path);
-
-//         Game {
-//             titile: String::from("test"),
-//             width: 0,
-//             height: 0,
-
-//         }
-//     }
-
-//     pub fn from_toml(path: &str) -> Self {
-//         Game::from_config(Config::from_toml(path))
-//     }
-
-//     pub fn from_config(config: Config) -> Self {
-//         let stage = Stage::from_toml(&config.stage[..]);
-//         stage.size(config.width, config.height);
-
-//         let script_engine = ScriptEngine::new();
-
-//         Game {
-//             config,
-//             stage,
-//             script_engine,
-//         }
-//     }
-
-//     pub fn update(&mut self) {
-//         self.script_engine.update();
-//     }
-
-//     pub fn exec(&mut self) {
-//         let mut window = Window::new(
-//             Rect::new(0, 0, self.config.width, self.config.height),
-//             &self.config.title[..],
-//         );
-
-//         window.add(&self.stage);
-
-//         'event: while window.running.get() {
-//             window.drain_events();
-//             self.update();
-//             window.draw();
-//             window.drain_orbital_events();
-//         }
-//     }
-// }

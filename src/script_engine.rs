@@ -7,7 +7,8 @@ use rhai::{Engine, RegisterFn, Scope};
 use regex::Regex;
 
 // use sprite::Sprite;
-use entity::Entity;
+use Entity;
+use TileMap;
 // use scene::Scene;
 
 pub struct ScriptEngine {
@@ -23,6 +24,8 @@ impl ScriptEngine {
         inner_engine.register_type::<Entity>();
         inner_engine.register_fn("mov", Entity::mov);
         inner_engine.register_fn("animation_step", Entity::animation_step);
+
+        inner_engine.register_type::<TileMap>();
 
         ScriptEngine {
             inner_engine,
@@ -46,7 +49,13 @@ impl ScriptEngine {
         String::from(script)
     }
 
-    pub fn update(&mut self, vertical_direction: f64, horizontal_direction: f64, delta: f64) {
+    pub fn update(
+        &mut self,
+        vertical_direction: f64,
+        horizontal_direction: f64,
+        delta: f64,
+        tile_map: &Option<TileMap>,
+    ) {
         self.scope = Scope::new();
         self.scope.push((
             String::from("vertical_direction"),
@@ -56,16 +65,17 @@ impl ScriptEngine {
             String::from("horizontal_direction"),
             Box::new(horizontal_direction),
         ));
-        self.scope.push((
-            String::from("delta"),
-            Box::new(delta),
-        ));
+        self.scope.push((String::from("delta"), Box::new(delta)));
+        if let Some(ref tile_map) = *tile_map {
+            self.scope
+                .push((String::from("map"), Box::new(tile_map.clone())));
+        }
     }
 
     pub fn execute_script(&mut self, entity: &Entity) -> Entity {
         self.scope.push((entity.id(), Box::new(entity.clone())));
 
-        let mut animation_step = 0;
+        let mut animation_step = 0.0;
 
         if let Some(ref sprite) = *entity.sprite().borrow() {
             animation_step = sprite.animation_step().get();

@@ -59,8 +59,8 @@ impl Scene {
             camera: RefCell::new(Camera::new(
                 Rect::new(0, 0, 800, 600),
                 Point::new(
-                    *&config.map.tile_set.tile_size as i32 * *&config.map.column_count as i32,
-                    *&config.map.tile_set.tile_size as i32 * *&config.map.row_count as i32,
+                    *&config.map.tile_set.tile_size as i32 * *&config.map.column_count as i32 - 800,
+                    *&config.map.tile_set.tile_size as i32 * *&config.map.row_count as i32 - 600,
                 ),
             )),
             vertical_direction: Cell::new(0.0),
@@ -78,6 +78,7 @@ impl Scene {
             self.vertical_direction.get(),
             self.horizontal_direction.get(),
             delta,
+            &*self.tile_map.borrow(),
         );
         for (_, entities) in &self.entities {
             for entity in &*entities.borrow_mut() {

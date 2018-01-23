@@ -14,7 +14,7 @@ pub struct SpriteConfig {
 pub struct Sprite {
     sheet: RefCell<Option<Image>>,
     animations: Vec<Rect>,
-    animation_step: Cell<usize>,
+    animation_step: Cell<f64>,
 }
 
 impl Sprite {
@@ -39,7 +39,7 @@ impl Sprite {
         Sprite {
             sheet: RefCell::new(sheet),
             animations,
-            animation_step: Cell::new(0),
+            animation_step: Cell::new(0.0),
         }
     }
 
@@ -52,10 +52,10 @@ impl Sprite {
     }
 
     pub fn current_animation_rect(&self) -> &Rect {
-        self.animtion_rect(self.animation_step.get())
+        self.animtion_rect(self.animation_step.get() as usize)
     }
 
-    pub fn animation_step(&self) -> &Cell<usize> {
+    pub fn animation_step(&self) -> &Cell<f64> {
         &self.animation_step
     }
 }

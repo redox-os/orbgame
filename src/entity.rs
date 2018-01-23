@@ -65,35 +65,30 @@ impl Entity {
     }
 
     pub fn animation_step(&mut self, animation_step: f64) {
+        println!("{}", animation_step);
         if let Some(ref sprite) = *self.sprite.borrow_mut() {
-            sprite.animation_step().set(animation_step as usize);
+            sprite.animation_step().set(animation_step);
         }
     }
 
-    pub fn mov(&mut self, dir_x: f64, dir_y: f64/*, map: &TileMap*/) {
+    pub fn mov(&mut self, dir_x: f64, dir_y: f64, map: TileMap) {
         let mut rect = self.rect.get();
 
-        // rect.x += (dir_x * self.speed * delta) as i32;
-        // self.check_tile_collison(&mut rect, dir_x, 0.0, map);
-
-        // rect.y += (dir_y * self.speed * delta) as i32;
-        // self.check_tile_collison(&mut rect, 0.0, dir_y, map);
-
         rect.x += dir_x as i32;
-        //self.check_tile_collison(&mut rect, dir_x, 0.0, map);
+        self.check_tile_collison(&mut rect, dir_x as f32, 0.0, &map);
 
         rect.y += dir_y as i32;
-        //self.check_tile_collison(&mut rect, 0.0, dir_y, map);
+        self.check_tile_collison(&mut rect, 0.0, dir_y as f32, &map);
 
-        // let max_x = map.column_count() * map.tile_size() as usize - rect.width as usize;
-        // let max_y = map.row_count() * map.tile_size() as usize - rect.height as usize;
+        let max_x = map.column_count() * map.tile_size() as usize - rect.width as usize;
+        let max_y = map.row_count() * map.tile_size() as usize - rect.height as usize;
 
         let zero_x: i32 = 0 + rect.width as i32;
         let zero_y: i32 = 0 + rect.height as i32;
 
         // adjust to respect the render_bounds
-        // rect.x = zero_x.max(rect.x.min(max_x as i32));
-        // rect.y = zero_y.max(rect.y.min(max_y as i32));
+        rect.x = zero_x.max(rect.x.min(max_x as i32));
+        rect.y = zero_y.max(rect.y.min(max_y as i32));
 
         self.rect.set(rect);
     }

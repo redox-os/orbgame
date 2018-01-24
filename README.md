@@ -33,7 +33,7 @@ cargo run --example adventure
 
 ## The game file
 
-A game and it's parts like scene, map and entities are described in [ron (rust object notation)](https://github.com/ron-rs/ron).
+A game and its parts like scene, map and entities are described in [ron (rust object notation)](https://github.com/ron-rs/ron).
 
 **Example**
 ```text

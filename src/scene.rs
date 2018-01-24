@@ -5,7 +5,7 @@ use std::cmp;
 
 use orbclient;
 use orbimage::Image;
-use orbtk::{Event, Place, Point, Rect, Renderer, Widget};
+use orbtk::{Event, Place, Point, Rect, Renderer, Widget, VerticalPlacement, HorizontalPlacement, Thickness};
 use orbtk::theme::Theme;
 
 use Camera;
@@ -26,6 +26,11 @@ pub struct SceneConfig {
 #[derive(Clone)]
 pub struct Scene {
     rect: Cell<Rect>,
+    local_position: Cell<Point>,
+    vertical_placement: Cell<VerticalPlacement>,
+    horizontal_placement: Cell<HorizontalPlacement>,
+    margin: Cell<Thickness>,
+    children: RefCell<Vec<Arc<Widget>>>,
     entities: HashMap<i32, RefCell<Vec<RefCell<Entity>>>>,
     tile_map: RefCell<Option<TileMap>>,
     camera: RefCell<Camera>,
@@ -53,6 +58,11 @@ impl Scene {
 
         Arc::new(Scene {
             rect: Cell::new(Rect::new(config.x, config.y, 800, 600)),
+            local_position: Cell::new(Point::default()),
+            vertical_placement: Cell::new(VerticalPlacement::Absolute),
+            horizontal_placement: Cell::new(HorizontalPlacement::Absolute),
+            margin: Cell::new(Thickness::default()),
+            children: RefCell::new(vec![]),
             entities: entities,
             tile_map: RefCell::new(Some(TileMap::from_config(&config.map))),
             // todo: real camera values
@@ -255,6 +265,22 @@ impl Widget for Scene {
         &self.rect
     }
 
+    fn vertical_placement(&self) -> &Cell<VerticalPlacement> {
+        &self.vertical_placement
+    }
+
+    fn horizontal_placement(&self) -> &Cell<HorizontalPlacement> {
+        &self.horizontal_placement
+    }
+
+    fn margin(&self) -> &Cell<Thickness> {
+        &self.margin
+    }
+
+    fn local_position(&self) -> &Cell<Point> {
+        &self.local_position
+    }
+
     fn name(&self) -> &str {
         "stage"
     }
@@ -298,6 +324,10 @@ impl Widget for Scene {
             _ => {}
         }
         _focused
+    }
+
+    fn children(&self) -> &RefCell<Vec<Arc<Widget>>> {
+        &self.children
     }
 }
 

@@ -1,4 +1,5 @@
 use std::cell::{Cell, RefCell};
+use std::cmp;
 
 use orbtk::Rect;
 use orbimage::Image;
@@ -48,6 +49,7 @@ impl Sprite {
     }
 
     pub fn animtion_rect(&self, index: usize) -> &Rect {
+        let index = cmp::min(cmp::max(index, 0), self.animations.len() - 1);
         &self.animations[index]
     }
 

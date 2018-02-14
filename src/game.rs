@@ -27,7 +27,7 @@ pub struct Game {
     script_engine: ScriptEngine,
     scene: Arc<Scene>,
     last_tick_time: time::Instant,
-    fps_counter: FPSCounter,
+    //fps_counter: FPSCounter,
 }
 
 impl Game {
@@ -47,7 +47,7 @@ impl Game {
             script_engine: ScriptEngine::new(),
             scene: scene,
             last_tick_time: time::Instant::now(),
-            fps_counter: FPSCounter::new(),
+            //fps_counter: FPSCounter::new(),
         }
     }
 

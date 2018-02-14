@@ -1,5 +1,4 @@
 use std::cell::{Cell, RefCell};
-use std::cmp;
 
 use orbtk::Rect;
 use orbimage::Image;

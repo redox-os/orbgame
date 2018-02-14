@@ -18,14 +18,10 @@ Game (
                 script: "examples/adventure/player.rhai",
                 sprite: Sprite (
                     sheet:"examples/adventure/player.png",
-                    animations: [
-                        [0, 0, 14, 21], [14, 0, 14, 21], [28, 0, 14, 21], [42, 0, 14, 21],
-                        [0, 21, 14, 21], [14, 21, 14, 21], [28, 21, 14, 21], [42, 21, 14, 21],
-                        [0, 42, 14, 21], [14, 42, 14, 21], [28, 42, 14, 21], [42, 42, 14, 21],
-                        [0, 63, 14, 21], [14, 63, 14, 21], [28, 63, 14, 21], [42, 63, 14, 21]
-                    ],
+                    rows: 4,
+                    columns: 4,                
                 ),
-            )
+            ),
         ],
         map: TileMap (
             layer_count: 3,

@@ -64,10 +64,11 @@ impl Entity {
         &self.script
     }
 
-    pub fn animation_step(&mut self, animation_step: f64) {
-        println!("{}", animation_step);
+    pub fn animation_step(&mut self, row: f64, column: f64) {
+        println!("{}", column);
         if let Some(ref sprite) = *self.sprite.borrow_mut() {
-            sprite.animation_step().set(animation_step);
+            sprite.row().set(row as u32);
+            sprite.column().set(column as f32);
         }
     }
 

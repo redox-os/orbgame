@@ -75,15 +75,21 @@ impl ScriptEngine {
     pub fn execute_script(&mut self, entity: &Entity) -> Entity {
         self.scope.push((entity.id(), Box::new(entity.clone())));
 
-        let mut animation_step = 0.0;
+        let mut animation_row = 0.0;
+        let mut animation_column = 0.0;
 
         if let Some(ref sprite) = *entity.sprite().borrow() {
-            animation_step = sprite.animation_step().get();
+            animation_row = sprite.row().get() as f64;
+            animation_column = sprite.column().get() as f64;
         }
 
         self.scope.push((
-            String::from("animation_step"),
-            Box::new(animation_step as f64),
+            String::from("animation_row"),
+            Box::new(animation_row),
+        ));
+        self.scope.push((
+            String::from("animation_column"),
+            Box::new(animation_column),
         ));
         if let Ok(result) = self.inner_engine
             .eval_with_scope::<Entity>(&mut self.scope, &entity.script().borrow())

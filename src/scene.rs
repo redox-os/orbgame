@@ -153,7 +153,6 @@ impl Scene {
     }
 
     fn draw_entity(&self, renderer: &mut Renderer, entity: &Entity) {
-        //let rect = entity.rect().get();
         let screen_position = entity.screen_position().get();
 
         if let Some(ref sprite) = *entity.sprite().borrow() {

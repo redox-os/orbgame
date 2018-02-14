@@ -22,6 +22,20 @@ Game (
                     columns: 4,                
                 ),
             ),
+            Entity (
+                id: "npc",
+                layer: 1,
+                x: 32,
+                y: 128,
+                width: 14,
+                height: 21,
+                script: "examples/adventure/npc.rhai",
+                sprite: Sprite (
+                    sheet:"examples/adventure/player.png",
+                    rows: 4,
+                    columns: 4,                
+                ),
+            ),
         ],
         map: TileMap (
             layer_count: 3,

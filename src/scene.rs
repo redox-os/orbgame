@@ -96,7 +96,15 @@ impl Scene {
                 *entity.borrow_mut() = entity_c;
 
                 // todo: use connect camera and entity from game.ron
-                self.camera.borrow_mut().follow(&mut *entity.borrow_mut());
+                if entity.borrow().id() == "player" {
+                    self.camera.borrow_mut().follow(&mut *entity.borrow_mut());
+                } else {
+                     let camera_rect = self.camera.borrow().rect().get();
+                     let mut entity = entity.borrow_mut();
+                     let rect = entity.rect().get();
+
+                     entity.screen_position().set(Point::new(rect.x - camera_rect.x ,rect.y - camera_rect.y));
+                }              
             }
         }
     }

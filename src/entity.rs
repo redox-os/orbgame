@@ -65,7 +65,6 @@ impl Entity {
     }
 
     pub fn animation_step(&mut self, row: f64, column: f64) {
-        println!("{}", column);
         if let Some(ref sprite) = *self.sprite.borrow_mut() {
             sprite.row().set(row as u32);
             sprite.column().set(column as f32);

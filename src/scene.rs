@@ -5,11 +5,13 @@ use std::cmp;
 
 use orbclient;
 use orbimage::Image;
-use orbtk::{Event, Place, Point, Rect, Renderer, Widget, VerticalPlacement, HorizontalPlacement, Thickness};
+use orbtk::{Event as OrbEvent, HorizontalPlacement, Place, Point, Rect, Renderer, Thickness,
+            VerticalPlacement, Widget};
 use orbtk::theme::Theme;
 
 use Camera;
 use Entity;
+use event::{Event, EventAction, EventCondition, EventConfig};
 use EntityConfig;
 use ScriptEngine;
 use tile_map::{TileMap, TileMapConfig};
@@ -17,14 +19,20 @@ use tile_map::{TileMap, TileMapConfig};
 #[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename = "Scene")]
 pub struct SceneConfig {
+    pub id: String,
     pub x: i32,
     pub y: i32,
+    #[serde(default)]
     pub map: TileMapConfig,
+    #[serde(default)]
     pub entities: Vec<EntityConfig>,
+    #[serde(default)]
+    pub events: Vec<EventConfig>,
 }
 
 #[derive(Clone)]
 pub struct Scene {
+    id: String,
     rect: Cell<Rect>,
     local_position: Cell<Point>,
     vertical_placement: Cell<VerticalPlacement>,
@@ -36,6 +44,7 @@ pub struct Scene {
     camera: RefCell<Camera>,
     vertical_direction: Cell<f64>,
     horizontal_direction: Cell<f64>,
+    events: Vec<Event>,
 }
 
 impl Scene {
@@ -56,7 +65,14 @@ impl Scene {
                 .push(RefCell::new(Entity::from_config(entity)));
         }
 
+        let mut events = vec![];
+
+        for event in &config.events {
+            events.push(Event::from_config(event));
+        }
+
         Arc::new(Scene {
+            id: config.id.clone(),
             rect: Cell::new(Rect::new(config.x, config.y, 800, 600)),
             local_position: Cell::new(Point::default()),
             vertical_placement: Cell::new(VerticalPlacement::Absolute),
@@ -75,7 +91,12 @@ impl Scene {
             )),
             vertical_direction: Cell::new(0.0),
             horizontal_direction: Cell::new(0.0),
+            events,
         })
+    }
+
+    pub fn id(&self) -> &str {
+        &self.id
     }
 
     pub fn camera(&self, camera: Camera) -> &Self {
@@ -90,7 +111,10 @@ impl Scene {
             delta,
             &*self.tile_map.borrow(),
         );
-        for (_, entities) in &self.entities {
+
+        self.handle_events();
+
+        for entities in self.entities.values() {
             for entity in &*entities.borrow_mut() {
                 let entity_c = script_engine.execute_script(&*entity.borrow());
                 *entity.borrow_mut() = entity_c;
@@ -99,12 +123,31 @@ impl Scene {
                 if entity.borrow().id() == "player" {
                     self.camera.borrow_mut().follow(&mut *entity.borrow_mut());
                 } else {
-                     let camera_rect = self.camera.borrow().rect().get();
-                     let mut entity = entity.borrow_mut();
-                     let rect = entity.rect().get();
+                    let camera_rect = self.camera.borrow().rect().get();
+                    let mut entity = entity.borrow_mut();
+                    let rect = entity.rect().get();
 
-                     entity.screen_position().set(Point::new(rect.x - camera_rect.x ,rect.y - camera_rect.y));
-                }              
+                    entity
+                        .screen_position()
+                        .set(Point::new(rect.x - camera_rect.x, rect.y - camera_rect.y));
+                }
+            }
+        }
+    }
+
+    fn handle_events(&self) {
+        for event in &self.events {
+            for entities in self.entities.values() {
+                for entity in &*entities.borrow_mut() {
+                    if entity.borrow().id() == *event.entity().borrow()
+                        && entity.borrow().rect().get().intersects(&event.rect().get())
+                        && *event.condition().borrow() == EventCondition::Enter
+                    {
+                        if let EventAction::SwitchScene(ref id) = *event.action().borrow() {
+                            println!("Switch to scene: {}", id);
+                        }
+                    }
+                }
             }
         }
     }
@@ -161,6 +204,7 @@ impl Scene {
     }
 
     fn draw_entity(&self, renderer: &mut Renderer, entity: &Entity) {
+        let rect = self.rect.get();
         let screen_position = entity.screen_position().get();
 
         if let Some(ref sprite) = *entity.sprite().borrow() {
@@ -171,8 +215,8 @@ impl Scene {
                 Scene::draw_image_part(
                     renderer,
                     sheet,
-                    screen_position.x,
-                    screen_position.y,
+                    screen_position.x + rect.x,
+                    screen_position.y + rect.y,
                     animation_rect.x as u32,
                     animation_rect.y as u32,
                     animation_rect.width,
@@ -296,9 +340,9 @@ impl Widget for Scene {
         self.draw_all_layers(renderer);
     }
 
-    fn event(&self, event: Event, _focused: bool, _redraw: &mut bool) -> bool {
+    fn event(&self, event: OrbEvent, _focused: bool, _redraw: &mut bool) -> bool {
         match event {
-            Event::KeyPressed(key_event) => match key_event.scancode {
+            OrbEvent::KeyPressed(key_event) => match key_event.scancode {
                 orbclient::K_UP => {
                     self.vertical_direction.set(-1.0);
                 }
@@ -313,7 +357,7 @@ impl Widget for Scene {
                 }
                 _ => {}
             },
-            Event::KeyReleased(key_event) => match key_event.scancode {
+            OrbEvent::KeyReleased(key_event) => match key_event.scancode {
                 orbclient::K_UP => {
                     self.vertical_direction.set(0.0);
                 }

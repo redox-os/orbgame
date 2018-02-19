@@ -22,7 +22,9 @@ impl GameBuilder {
             if let Ok(config) = config {
                 return Ok(Game::from_config(&config));
             } else {
-                return Err(String::from("Could not parse game file."));
+                if let Err(err) = config {
+                    return Err(String::from(format!("Could not parse game file ({}).", err)));
+                }        
             }
         }
 

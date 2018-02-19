@@ -29,6 +29,6 @@ if hor != 0.0 {
     column = animation_column + delta * animation_speed;
 }
 
-npc.animation_step(calculate_animation_row(animation_row, hor, 0.0), column);
-npc.mov(delta * walk_speed * hor, 0.0, map);
+//npc.animation_step(calculate_animation_row(animation_row, hor, 0.0), column);
+//npc.mov(delta * walk_speed * hor, 0.0, map);
 npc

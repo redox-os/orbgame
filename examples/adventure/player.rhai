@@ -1,4 +1,4 @@
-let walk_speed = 250.0;
+let walk_speed = 128.0;
 let animation_speed = 12.0;
 
 fn calculate_animation_row(row, hor, ver) {    

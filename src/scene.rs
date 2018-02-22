@@ -45,6 +45,7 @@ pub struct Scene {
     vertical_direction: Cell<f64>,
     horizontal_direction: Cell<f64>,
     events: Vec<Event>,
+    active: Cell<bool>,
 }
 
 impl Scene {
@@ -92,6 +93,7 @@ impl Scene {
             vertical_direction: Cell::new(0.0),
             horizontal_direction: Cell::new(0.0),
             events,
+            active: Cell::new(false),
         })
     }
 
@@ -99,12 +101,34 @@ impl Scene {
         &self.id
     }
 
+    pub fn active(&self) -> &Cell<bool> {
+        &self.active
+    }
+
+    pub fn place_entity(&self, id: &str, x: i32, y: i32) {
+        for entities in self.entities.values() {
+            for entity in &*entities.borrow_mut() {
+                if entity.borrow().id() == id {
+                    let mut rect = entity.borrow().rect().get();
+                    rect.x = x;
+                    rect.y = y;
+                    entity.borrow().rect().set(rect);
+                }
+            }
+        }
+    }
+
     pub fn camera(&self, camera: Camera) -> &Self {
         (*self.camera.borrow_mut()) = camera;
         self
     }
 
-    pub fn update(&self, script_engine: &mut ScriptEngine, delta: f64) {
+    pub fn update(
+        &self,
+        script_engine: &mut ScriptEngine,
+        delta: f64,
+        actions: &RefCell<Vec<EventAction>>,
+    ) {
         script_engine.update(
             self.vertical_direction.get(),
             self.horizontal_direction.get(),
@@ -112,7 +136,7 @@ impl Scene {
             &*self.tile_map.borrow(),
         );
 
-        self.handle_events();
+        self.handle_events(actions);
 
         for entities in self.entities.values() {
             for entity in &*entities.borrow_mut() {
@@ -135,7 +159,7 @@ impl Scene {
         }
     }
 
-    fn handle_events(&self) {
+    fn handle_events(&self, actions: &RefCell<Vec<EventAction>>) {
         for event in &self.events {
             for entities in self.entities.values() {
                 for entity in &*entities.borrow_mut() {
@@ -143,8 +167,19 @@ impl Scene {
                         && entity.borrow().rect().get().intersects(&event.rect().get())
                         && *event.condition().borrow() == EventCondition::Enter
                     {
-                        if let EventAction::SwitchScene(ref id) = *event.action().borrow() {
-                            println!("Switch to scene: {}", id);
+                        if let EventAction::SwitchScene {
+                            ref id,
+                            ref entity,
+                            x,
+                            y,
+                        } = *event.action().borrow()
+                        {
+                            actions.borrow_mut().push(EventAction::SwitchScene {
+                                id: id.clone(),
+                                entity: entity.clone(),
+                                x,
+                                y,
+                            })
                         }
                     }
                 }
@@ -337,6 +372,9 @@ impl Widget for Scene {
     }
 
     fn draw(&self, renderer: &mut Renderer, _focused: bool, _theme: &Theme) {
+        if !self.active.get() {
+            return;
+        }
         self.draw_all_layers(renderer);
     }
 

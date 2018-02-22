@@ -14,7 +14,7 @@ Game (
                     id: "player",
                     layer: 1,
                     x: 64,
-                    y: 166,
+                    y: 162,
                     width: 14,
                     height: 21,
                     script: "examples/adventure/player.rhai",
@@ -57,7 +57,12 @@ Game (
                     height: 16,
                     entity: "player",
                     condition: Enter,
-                    action: SwitchScene("outer"),
+                    action: SwitchScene(
+                        id: "outer", 
+                        entity: "player", 
+                        x: 480,
+                        y: 464
+                    ),
                 )
             ],
         ),
@@ -94,6 +99,22 @@ Game (
                         columns: 4,                
                     ),
                 ),
+            ],
+            events: [
+                Event (
+                    x: 480,
+                    y: 448,
+                    width: 16,
+                    height: 16,
+                    entity: "player",
+                    condition: Enter,
+                    action: SwitchScene(
+                        id: "inner", 
+                        entity: "player", 
+                        x: 64,
+                        y: 162
+                    ),
+                )
             ],
             map: TileMap (
                 layer_count: 3,

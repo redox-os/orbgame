@@ -6,10 +6,10 @@ use std::time;
 
 use orbclient::WindowFlag;
 
-use orbtk::{Rect, Window, WindowBuilder, Widget };
+use orbtk::{Rect, Widget, Window, WindowBuilder};
 use orbtk::theme::Theme;
 
-use super::{Scene, SceneConfig, ScriptEngine};
+use super::{EventAction, Scene, SceneConfig, ScriptEngine};
 
 #[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename = "Game")]
@@ -30,6 +30,7 @@ pub struct Game {
     scenes: Vec<Arc<Scene>>,
     active_scene: RefCell<Arc<Scene>>,
     last_tick_time: time::Instant,
+    actions: RefCell<Vec<EventAction>>,
     //fps_counter: FPSCounter,
 }
 
@@ -46,13 +47,13 @@ impl Game {
         let mut scenes = vec![];
 
         for scene in &config.scenes {
-            scenes.push(Scene::from_config(scene));
+            let scene = Scene::from_config(scene);
+            window.add(&scene);
+            scenes.push(scene);
         }
 
         let active_scene = scenes[0].clone();
-
-        // add first scene to window
-        window.add(&active_scene);
+        active_scene.active().set(true);
 
         Game {
             window,
@@ -62,6 +63,7 @@ impl Game {
             scenes,
             active_scene: RefCell::new(active_scene),
             last_tick_time: time::Instant::now(),
+            actions: RefCell::new(vec![]),
             //fps_counter: FPSCounter::new(),
         }
     }
@@ -72,19 +74,13 @@ impl Game {
         self.target_fps_nanos - (total_nanos as f32)
     }
 
-    pub fn show_scene(&self, id: &str) {
+    pub fn show_scene(&self, id: &str, entity: &str, x: i32, y: i32) {
         if let Some(scene) = self.scenes.iter().find(|s| s.id() == id) {
-            self.remove_scene_from_window(scene.clone());
-
+            self.active_scene.borrow().active().set(false);
             *self.active_scene.borrow_mut() = scene.clone();
-            self.window.add(&*self.active_scene.borrow());
+            self.active_scene.borrow().active().set(true);
+            self.active_scene.borrow().place_entity(&entity, x, y);
         }
-    }
-
-    fn remove_scene_from_window(&self, scene: Arc<Widget>) {
-        if let Some(position) = (self.window.widgets.borrow()).iter().position(|a| Arc::ptr_eq(a, &scene)) {
-                (*self.window.widgets.borrow_mut()).remove(position);
-            }     
     }
 
     fn update(&mut self) {
@@ -94,8 +90,22 @@ impl Game {
 
         let delta = 1.0 / self.target_fps;
 
-        self.active_scene.borrow().update(&mut self.script_engine, delta);
+        self.active_scene
+            .borrow()
+            .update(&mut self.script_engine, delta, &self.actions);
+        self.handle_actions();
         self.last_tick_time = time::Instant::now();
+    }
+
+    fn handle_actions(&self) {
+        for action in self.actions.borrow_mut().pop() {
+            match action {
+                EventAction::SwitchScene { id, entity, x, y } => {
+                    self.show_scene(&id, &entity, x, y);
+                }
+                _ => {}
+            }
+        }
     }
 
     pub fn exec(&mut self) {

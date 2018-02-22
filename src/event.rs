@@ -16,7 +16,15 @@ impl Default for EventCondition {
 #[derive(Clone, Debug, Deserialize)]
 pub enum EventAction {
     None,
-    SwitchScene(String)
+    SwitchScene {
+        id: String,
+        #[serde(default)]
+        entity: String,
+        #[serde(default)]
+        x: i32,
+        #[serde(default)]
+        y: i32,
+    }
 }
 
 impl Default for EventAction {

@@ -18,8 +18,8 @@ keywords = [
 name = "orbgame"
 path = "src/lib.rs"
 
-[profile.dev]
-opt-level = 1
+# [profile.dev]
+# opt-level = 1
 
 [dependencies]
 orbclient = "0.3.11"

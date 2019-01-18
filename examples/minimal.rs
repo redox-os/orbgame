@@ -1,12 +1,12 @@
 use orbgame::prelude::*;
 
-struct MainView;
+struct GameView;
 
-impl Widget for MainView {
+impl Widget for GameView {
     fn create() -> Template {
         Template::default()
             .as_parent_type(ParentType::Single)
-            .with_debug_name("MainView")
+            .with_debug_name("GameView")
             .with_child(
                 Container::create()
                     .as_parent_type(ParentType::Single)
@@ -17,11 +17,10 @@ impl Widget for MainView {
 
 fn main() {
     let mut game = Game::default();
-    game
-        .create_window()
+    game.create_window()
         .with_bounds(Bounds::new(0, 0, 420, 730))
-        .with_title("OrbGame - Minimal example")
-        .with_root(MainView::create())
+        .with_title("OrbGame - minimal example")
+        .with_root(GameView::create())
         .with_debug_flag(true)
         .build();
     game.run();

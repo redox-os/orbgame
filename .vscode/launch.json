@@ -7,10 +7,10 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug adventure",
-            "program": "${workspaceFolder}/target/debug/examples/adventure",
+            "name": "Debug dungeon",
+            "program": "${workspaceFolder}/target/debug/examples/dungeon",
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build adventure",
+            "preLaunchTask": "build dungeon",
             "sourceLanguages": [
                 "rust"
             ]

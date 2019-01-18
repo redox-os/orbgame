@@ -1,0 +1,25 @@
+
+* {
+    background: #25131A;
+}
+
+container.menu {
+    background: #6E4A48;
+    border-color: #472B43;
+    border-radius: 2;
+    border-width: 2;
+    width: 100;
+    height: 100;
+}
+
+button {
+    border-radius: 2;
+    border-width: 4;
+    border-color: #3D253B;
+    background: #895A45;
+    color: #FFFFFF;
+}
+
+button:active {
+    background: #724736;
+}

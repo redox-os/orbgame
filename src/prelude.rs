@@ -1,7 +1,8 @@
-
 pub use crate::{
+    enums::{Alignment, ParentType, Placement, Visibility},
+    event::*,
     game::Game,
-    widget::*,
     properties::*,
-    enums::{ParentType, Placement, Alignment},
+    theme::*,
+    widget::*,
 };

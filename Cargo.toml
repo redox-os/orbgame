@@ -13,6 +13,7 @@ keywords = [
     "engine",
     "tiles"
 ]
+edition = "2018"
 
 [lib]
 name = "orbgame"
@@ -22,13 +23,10 @@ path = "src/lib.rs"
 # opt-level = 1
 
 [dependencies]
-orbclient = "0.3.11"
-orbtk = { git = "https://gitlab.redox-os.org/redox-os/orbtk.git" }
-orbimage = "0.1.15"
+orbclient = "0.3.20"
+orbtk = { git = "https://gitlab.redox-os.org/redox-os/orbtk" }
 serde = "1.0"
 serde_derive = "1.0"
 chrono = "0.4"
 fps_counter = "1.0.0"
-rhai = "0.8.1"
-ron = "0.1.5"
-regex = "0.2"
+ron = "0.4.1"

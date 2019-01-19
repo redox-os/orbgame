@@ -4,5 +4,6 @@ pub use crate::{
     game::Game,
     properties::*,
     theme::*,
+    styling::*,
     widget::*,
 };

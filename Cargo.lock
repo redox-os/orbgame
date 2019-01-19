@@ -419,7 +419,7 @@ version = "0.1.0"
 dependencies = [
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "fps_counter 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "orbtk 0.3.0 (git+https://gitlab.redox-os.org/redox-os/orbtk)",
+ "orbtk 0.3.0 (git+https://gitlab.redox-os.org/redox-os/orbtk.git)",
 ]
 
 [[package]]
@@ -443,7 +443,7 @@ dependencies = [
 [[package]]
 name = "orbtk"
 version = "0.3.0"
-source = "git+https://gitlab.redox-os.org/redox-os/orbtk#b409b6f1ce70b9cc35b4ae93c729083b258d1689"
+source = "git+https://gitlab.redox-os.org/redox-os/orbtk.git#de803cdc02c31acac25d96fd2a0d4131e587b11a"
 dependencies = [
  "cssparser 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "dces 0.1.6 (git+https://gitlab.redox-os.org/redox-os/dces-rust.git)",
@@ -923,7 +923,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum orbfont 0.1.9 (git+https://gitlab.redox-os.org/redox-os/orbfont.git)" = "<none>"
 "checksum orbgl 0.1.0 (git+https://gitlab.redox-os.org/redox-os/orbgl.git?rev=ae7c4679fc37457f843c1c1446fcb7e55f457857)" = "<none>"
 "checksum orbimage 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)" = "4ba0f4046c0c2c3325a87055396d19929122095366d8da2292fbda6347977ce1"
-"checksum orbtk 0.3.0 (git+https://gitlab.redox-os.org/redox-os/orbtk)" = "<none>"
+"checksum orbtk 0.3.0 (git+https://gitlab.redox-os.org/redox-os/orbtk.git)" = "<none>"
 "checksum ordered-float 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "2f0015e9e8e28ee20c581cfbfe47c650cedeb9ed0721090e0b7ebb10b9cdbcc2"
 "checksum phf 0.7.24 (registry+https://github.com/rust-lang/crates.io-index)" = "b3da44b85f8e8dfaec21adae67f95d93244b2ecf6ad2a692320598dcc8e6dd18"
 "checksum phf_codegen 0.7.24 (registry+https://github.com/rust-lang/crates.io-index)" = "b03e85129e324ad4166b06b2c7491ae27fe3ec353af72e72cd1654c7225d517e"

@@ -61,7 +61,7 @@ impl GameViewState {
 impl State for GameViewState {
     fn update(&self, context: &mut Context<'_>) {
         if self.close_game.get() {
-            // context.push_event(SystemEvent::Quit);
+            context.push_event(SystemEvent::Quit);
         }
         if let Some(menu_view) = &mut context.widget_from_id("menu-view") {
             if self.game_started.get() {

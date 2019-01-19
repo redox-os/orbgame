@@ -443,7 +443,7 @@ dependencies = [
 [[package]]
 name = "orbtk"
 version = "0.3.0"
-source = "git+https://gitlab.redox-os.org/redox-os/orbtk#0fe0646881e675c670e970d85246f0999bf7b6ab"
+source = "git+https://gitlab.redox-os.org/redox-os/orbtk#b409b6f1ce70b9cc35b4ae93c729083b258d1689"
 dependencies = [
  "cssparser 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "dces 0.1.6 (git+https://gitlab.redox-os.org/redox-os/dces-rust.git)",

@@ -26,7 +26,7 @@ fn create_menu(new_game: MouseEventHandler, quit: MouseEventHandler) -> Template
                         .with_child(
                             Column::create()
                                 .with_child(
-                                    create_button_with_container("New Games", new_game)
+                                    create_button_with_container("New Game", new_game)
                                         .with_shared_property(visibility.clone()),
                                 )
                                 .with_child(
@@ -43,6 +43,7 @@ fn create_menu(new_game: MouseEventHandler, quit: MouseEventHandler) -> Template
 #[derive(Default)]
 struct GameViewState {
     game_started: Cell<bool>,
+    close_game: Cell<bool>,
 }
 
 impl GameViewState {
@@ -53,11 +54,15 @@ impl GameViewState {
 
     fn quit_game(&self) {
         println!("Quit game");
+        self.close_game.set(true);
     }
 }
 
 impl State for GameViewState {
     fn update(&self, context: &mut Context<'_>) {
+        if self.close_game.get() {
+            // context.push_event(SystemEvent::Quit);
+        }
         if let Some(menu_view) = &mut context.widget_from_id("menu-view") {
             if self.game_started.get() {
                 if let Ok(visibility) = menu_view.borrow_mut_property::<Visibility>() {
@@ -80,25 +85,25 @@ impl Widget for GameView {
             .as_parent_type(ParentType::Single)
             .with_debug_name("GameView")
             .with_child(
-                Stack::create().with_child(
-                    Container::create()
-                        .as_parent_type(ParentType::Single)
-                        .with_child(TextBlock::create().with_property(Label::from("Dungeon")))
-                        .with_child(create_menu(
-                            MouseEventHandler::default().on_click(Rc::new(
-                                move |_pos: Point| -> bool {
-                                    ng_state.start_game();
-                                    true
-                                },
-                            )),
-                            MouseEventHandler::default().on_click(Rc::new(
-                                move |_pos: Point| -> bool {
-                                    q_state.quit_game();
-                                    true
-                                },
-                            )),
+                Stack::create()
+                    .with_child(
+                        Container::create()
+                            .with_child(TextBlock::create().with_property(Label::from("Dungeon"))),
+                    )
+                    .with_child(Container::create().with_child(create_menu(
+                        MouseEventHandler::default().on_click(Rc::new(
+                            move |_pos: Point| -> bool {
+                                ng_state.start_game();
+                                true
+                            },
                         )),
-                ),
+                        MouseEventHandler::default().on_click(Rc::new(
+                            move |_pos: Point| -> bool {
+                                q_state.quit_game();
+                                true
+                            },
+                        )),
+                    ))),
             )
             .with_state(state)
     }

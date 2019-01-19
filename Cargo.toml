@@ -23,6 +23,6 @@ path = "src/lib.rs"
 # opt-level = 1
 
 [dependencies]
-orbtk = { git = "https://gitlab.redox-os.org/redox-os/orbtk" }
+orbtk = { git = "https://gitlab.redox-os.org/redox-os/orbtk.git" }
 chrono = "0.4"
 fps_counter = "1.0.0"

@@ -118,7 +118,7 @@ fn main() {
 
     let mut game = Game::default();
     game.create_window()
-        .with_bounds(Bounds::new(0, 0, 800, 600))
+        .with_bounds(Bounds::new(100, 100, 800, 600))
         .with_title("OrbGame - dungeon example")
         .with_theme(Theme::parse(&theme))
         .with_root(GameView::create())

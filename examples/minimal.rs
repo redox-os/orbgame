@@ -18,7 +18,7 @@ impl Widget for GameView {
 fn main() {
     let mut game = Game::default();
     game.create_window()
-        .with_bounds(Bounds::new(0, 0, 420, 730))
+        .with_bounds(Bounds::new(100, 100, 420, 730))
         .with_title("OrbGame - minimal example")
         .with_root(GameView::create())
         .with_debug_flag(true)

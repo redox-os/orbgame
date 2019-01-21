@@ -1,4 +1,4 @@
-use std::{cell::Cell, fs::File, io::prelude::*, rc::Rc};
+use std::{cell::Cell, rc::Rc};
 
 use orbgame::prelude::*;
 
@@ -110,17 +110,15 @@ impl Widget for GameView {
 }
 
 fn main() {
-    let mut theme = File::open("examples/res/dungeon/theme.css").unwrap();
-    let mut contents = String::new();
-    theme.read_to_string(&mut contents).unwrap();
-
-    let theme = format!("{}{}", contents, DEFAULT_THEME_CSS);
-
     let mut game = Game::default();
     game.create_window()
         .with_bounds(Bounds::new(100, 100, 800, 600))
         .with_title("OrbGame - dungeon example")
-        .with_theme(Theme::parse(&theme))
+        .with_theme(
+            Theme::create()
+                .with_extenstion_path("examples/res/dungeon/theme.css")
+                .build(),
+        )
         .with_root(GameView::create())
         .with_debug_flag(false)
         .build();

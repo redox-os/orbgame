@@ -2,14 +2,6 @@ use std::{cell::Cell, rc::Rc};
 
 use orbgame::prelude::*;
 
-fn create_button_with_container(label: &str, handler: MouseEventHandler) -> Template {
-    Container::create().with_child(
-        Button::create()
-            .with_property(Label::from(label))
-            .with_event_handler(handler),
-    )
-}
-
 #[derive(Default)]
 struct MenuViewState {
     start_game: Cell<bool>,
@@ -43,45 +35,55 @@ impl State for MenuViewState {
 struct MenuView;
 
 impl Widget for MenuView {
-    fn create() -> Template {
+    type Template = Template;
+
+    fn create() -> Self::Template {
         let state = Rc::new(MenuViewState::default());
         let ng_state = state.clone();
         let q_state = state.clone();
 
         Template::default()
-            .as_parent_type(ParentType::Single)
-            .with_debug_name("MenuView")
-            .with_child(
-                Center::create()
-                    .as_parent_type(ParentType::Single)
-                    .with_child(
+            .debug_name("MenuView")
+            .child(
+                Grid::create()
+                    .selector(Selector::from("grid").class("start"))
+                    .child(
                         Container::create()
-                            .with_property(Selector::from("container").with_class("menu"))
-                            .with_child(
-                                Column::create()
-                                    .with_child(create_button_with_container(
-                                        "New Game",
-                                        MouseEventHandler::default().on_click(Rc::new(
-                                            move |_pos: Point| -> bool {
+                            .padding(16.0)
+                            .selector(Selector::from("container").class("menu"))
+                            .vertical_alignment("Center")
+                            .horizontal_alignment("Center")
+                            .child(
+                                Stack::create()
+                                    .child(
+                                        TextBlock::create()
+                                            .selector(Selector::from("textblock").class("h1"))
+                                            .text("Dungeon")
+                                            .horizontal_alignment("Center"),
+                                    )
+                                    .child(
+                                        Button::create()
+                                            .margin((0.0, 16.0, 0.0, 0.0))
+                                            .text("Start Game")
+                                            .on_click(move |_| {
                                                 ng_state.start_game();
                                                 true
-                                            },
-                                        )),
-                                    ))
-                                    .with_child(create_button_with_container(
-                                        "Quit",
-                                        MouseEventHandler::default().on_click(Rc::new(
-                                            move |_pos: Point| -> bool {
+                                            }),
+                                    )
+                                    .child(
+                                        Button::create()
+                                            .margin((0.0, 8.0, 0.0, 0.0))
+                                            .text("Quit")
+                                            .on_click(move |_| {
                                                 q_state.quit_game();
                                                 true
-                                            },
-                                        )),
-                                    )),
+                                            }),
+                                    ),
                             ),
                     ),
             )
-            .with_property(Selector::default().with_id("menu-view"))
-            .with_state(state)
+            .property(Selector::default().id("menu_view"))
+            .state(state)
     }
 }
 
@@ -94,7 +96,7 @@ impl State for GameViewState {
             if let Ok(message) = message.downcast_ref::<StringMessage>() {
                 match message.0.as_str() {
                     "start" => {
-                        if let Some(menu_view) = &mut context.widget_from_id("menu-view") {
+                        if let Some(menu_view) = &mut context.child_by_id("menu_view") {
                             if let Ok(visibility) = menu_view.borrow_mut_property::<Visibility>() {
                                 *visibility = Visibility::Collapsed
                             }
@@ -113,37 +115,35 @@ impl State for GameViewState {
 struct GameView;
 
 impl Widget for GameView {
-    fn create() -> Template {
+    type Template = Template;
+
+    fn create() -> Self::Template {
         let state = Rc::new(GameViewState::default());
 
         Template::default()
-            .as_parent_type(ParentType::Single)
-            .with_debug_name("GameView")
-            .with_child(
-                Stack::create()
-                    .with_child(
-                        Container::create()
-                            .with_child(TextBlock::create().with_property(Label::from("Dungeon"))),
-                    )
-                    .with_child(MenuView::create()),
+            .debug_name("GameView")
+            .property(Selector::default().id("game_view"))
+            .child(
+                Grid::create()
+                    .child(Container::create().child(TextBlock::create().text("Dungeon")))
+                    .child(MenuView::create()),
             )
-            .with_property(Selector::default().with_id("game_view"))
-            .with_state(state)
+            .state(state)
     }
 }
 
 fn main() {
     let mut game = Game::default();
     game.create_window()
-        .with_bounds(Bounds::new(100, 100, 800, 600))
-        .with_title("OrbGame - dungeon example")
-        .with_theme(
+        .bounds((100.0, 100.0, 800.0, 600.0))
+        .title("OrbGame - dungeon example")
+        .root(GameView::create())
+        .debug_flag(false)
+        .theme(
             Theme::create()
-                .with_extenstion_path("examples/res/dungeon/theme.css")
+                .extension_path("examples/res/dungeon/theme.css")
                 .build(),
         )
-        .with_root(GameView::create())
-        .with_debug_flag(false)
         .build();
     game.run();
 }

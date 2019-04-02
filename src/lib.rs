@@ -1,9 +1,6 @@
-use orbtk::enums;
-use orbtk::event;
-use orbtk::properties;
-use orbtk::theme;
-use orbtk::styling;
-use orbtk::widget;
+pub use orbtk::prelude as orbtk_prelude;
+pub use orbtk::property;
+pub use orbtk::widget;
 
 pub mod game;
 pub mod prelude;

@@ -1,9 +1,1 @@
-pub use crate::{
-    enums::*,
-    event::*,
-    game::Game,
-    properties::*,
-    theme::*,
-    styling::*,
-    widget::*,
-};
+pub use crate::{game::Game, orbtk_prelude::*, property, widget};

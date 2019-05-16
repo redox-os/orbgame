@@ -38,7 +38,7 @@ widget!(
     );
 
 impl Template for MenuView {
-    fn template(self, id: Entity, context: &mut BuildContext) -> Self {
+    fn template(self, _: Entity, context: &mut BuildContext) -> Self {
         let state = self.clone_state();
         let ng_state = state.clone();
         let q_state = state.clone();
@@ -122,9 +122,7 @@ widget!(
     );
 
 impl Template for GameView {
-    fn template(self, id: Entity, context: &mut BuildContext) -> Self {
-        let state = self.clone_state();
-
+    fn template(self, _: Entity, context: &mut BuildContext) -> Self {
         self.name("GameView")
             .selector(Selector::default().id("game_view"))
             .child(
@@ -141,16 +139,19 @@ impl Template for GameView {
 }
 
 fn main() {
-    let mut game = Game::default();
-    game.create_window()
-        .bounds((100.0, 100.0, 800.0, 600.0))
-        .title("OrbGame - dungeon example")
-        .debug_flag(false)
-        .theme(
-            Theme::create()
-                .extension_path("examples/res/dungeon/theme.css")
-                .build(),
-        )
-        .build(GameView::create());
-    game.run();
+    Game::new()
+        .window(|ctx| {
+            Window::create()
+                .title("OrbGame - dungeon example")
+                .position((100.0, 100.0))
+                .size(800.0, 600.0)
+                .theme(
+                    ThemeValue::create()
+                        .extension_path("examples/res/dungeon/theme.css")
+                        .build(),
+                )
+                .child(GameView::create().build(ctx))
+                .build(ctx)
+        })
+        .run();
 }

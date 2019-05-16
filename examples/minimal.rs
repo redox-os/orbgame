@@ -1,13 +1,14 @@
 use orbgame::prelude::*;
 
 fn main() {
-    let mut game = Game::default();
-    game
-        .create_window()
-        .bounds((100.0, 100.0, 420.0, 730.0))
-        .title("OrbGame - minimal example")
-        .debug_flag(false)
-        .build(TextBlock::create().text("OrbGame"));
-    game.run();
+    Game::new()
+        .window(|ctx| {
+            Window::create()
+                .title("OrbGame - minimal example")
+                .position((100.0, 100.0))
+                .size(420.0, 730.0)
+                .child(TextBlock::create().text("OrbGame").build(ctx))
+                .build(ctx)
+        })
+        .run();
 }
-

@@ -1,6 +1,8 @@
-pub use orbtk::prelude as orbtk_prelude;
-pub use orbtk::property;
-pub use orbtk::widget;
-
-pub mod game;
+pub use orbtk::{api as api, api::Application as Game};
+pub use orbtk::css_engine as css_engine;
+pub use orbtk::shell as shell;
+pub use orbtk::theme as theme;
+pub use orbtk::tree as tree;
+pub use orbtk::utils as utils;
+pub use orbtk::widgets as widgets;
 pub mod prelude;

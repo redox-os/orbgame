@@ -145,10 +145,9 @@ fn main() {
                 .title("OrbGame - dungeon example")
                 .position((100.0, 100.0))
                 .size(800.0, 600.0)
-                .theme(
-                    ThemeValue::create()
-                        .extension_path("examples/res/dungeon/theme.css")
-                        .build(),
+                .theme(ThemeValue::create()
+                    .extension_css(include_str!("res/dungeon/theme.css"))
+                    .build()
                 )
                 .child(GameView::create().build(ctx))
                 .build(ctx)

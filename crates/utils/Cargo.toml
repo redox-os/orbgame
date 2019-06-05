@@ -7,3 +7,6 @@ repository = "https://gitlab.redox-os.org/redox-os/orbgame"
 license = "MIT"
 keywords = ["helpers", "utils", "traits", "games"]
 edition = "2018"
+
+[dependencies]
+orbtk = { git = "https://gitlab.redox-os.org/redox-os/orbtk.git" }

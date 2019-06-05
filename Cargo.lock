@@ -460,6 +460,9 @@ dependencies = [
 [[package]]
 name = "orbgame-utils"
 version = "0.1.0"
+dependencies = [
+ "orbtk 0.3.0 (git+https://gitlab.redox-os.org/redox-os/orbtk.git)",
+]
 
 [[package]]
 name = "orbgame-widgets"
@@ -467,6 +470,7 @@ version = "0.1.0"
 dependencies = [
  "orbgame-api 0.1.0",
  "orbgame-utils 0.1.0",
+ "orbtk 0.3.0 (git+https://gitlab.redox-os.org/redox-os/orbtk.git)",
 ]
 
 [[package]]

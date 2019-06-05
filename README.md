@@ -23,31 +23,17 @@ crate](https://github.com/AngryLawyer/rust-sdl2#user-content-requirements).
 ```rust
 use orbgame::prelude::*;
 
-struct GameView;
-
-impl Widget for GameView {
-    fn create() -> Template {
-        Template::default()
-            .as_parent_type(ParentType::Single)
-            .with_debug_name("GameView")
-            .with_child(
-                Container::create()
-                    .as_parent_type(ParentType::Single)
-                    .with_child(TextBlock::create().with_property(Label::from("OrbGame"))),
-            )
-    }
-}
-
 fn main() {
-    let mut game = Game::default();
-    game
-        .create_window()
-        .with_bounds(Bounds::new(0, 0, 420, 730))
-        .with_title("OrbGame - minimal example")
-        .with_root(GameView::create())
-        .with_debug_flag(true)
-        .build();
-    game.run();
+    Game::new()
+        .window(|ctx| {
+            Window::create()
+                .title("OrbGame - minimal example")
+                .position((100.0, 100.0))
+                .size(420.0, 730.0)
+                .child(TextBlock::create().text("OrbGame").build(ctx))
+                .build(ctx)
+        })
+        .run();
 }
 ```
 
@@ -61,13 +47,49 @@ You can start the widgets example by executing the following command:
 cargo run --example dungeon --release
 ```
 
-## Build and run documenation
+## Additional Examples on Web
+
+To run the examples on a browser you have to install 
+
+```text
+cargo install -f cargo-web
+```
+
+### Run
+
+You can start the dungeon example by executing the following command:
+
+* Compile to [WebAssembly](https://en.wikipedia.org/wiki/WebAssembly) using Rust's native WebAssembly backend:
+
+```text
+cargo web start --target=wasm32-unknown-unknown --auto-reload --example dungeon
+```
+
+* Compile to [asm.js](https://en.wikipedia.org/wiki/Asm.js) using Emscripten:
+
+```text
+$ cargo web start --target=asmjs-unknown-emscripten --auto-reload --example dungeon
+```
+
+* Compile to WebAssembly using Emscripten:
+
+```text
+$ cargo web start --target=wasm32-unknown-emscripten --auto-reload --example dungeon
+```
+
+## Build and run documentation
 
 You can build and run the latest documentation y executing the following command:
 
 ```text
 cargo doc --no-deps --open
 ```
+
+## Sub Crates
+
+* api: additional game elements
+* utils: Game helper structs and traits
+* widgets: Game widget library
 
  ## Credits
  

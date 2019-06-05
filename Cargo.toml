@@ -23,7 +23,17 @@ path = "src/lib.rs"
 # opt-level = 1
 
 [dependencies]
+orbgame-api = { version = "0.1.0", path = "crates/api" }
+orbgame-utils = { version = "0.1.0", path = "crates/utils" }
+orbgame-widgets = { version = "0.1.0", path = "crates/widgets" }
 # orbtk = { path = "../orbtk" }
 orbtk = { git = "https://gitlab.redox-os.org/redox-os/orbtk.git" }
 chrono = "0.4"
 fps_counter = "1.0.0"
+
+[workspace]
+members = [
+    "crates/api",
+    "crates/utils",
+    "crates/widgets",
+]

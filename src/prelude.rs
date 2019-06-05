@@ -16,5 +16,8 @@ pub use crate::{
     tree::*,
     utils::*,
     widgets::*,
+    game_api::*,
+    game_utils::*,
+    game_widgets::*,
 };
 

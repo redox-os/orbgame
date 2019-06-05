@@ -1,0 +1,9 @@
+[package]
+name = "orbgame-utils"
+version = "0.1.0"
+authors = ["Florian Blasius <flovanpt@posteo.de>"]
+description = "Helper game utils and traits for OrbGame."
+repository = "https://gitlab.redox-os.org/redox-os/orbgame"
+license = "MIT"
+keywords = ["helpers", "utils", "traits", "games"]
+edition = "2018"
